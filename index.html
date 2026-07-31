@@ -1,0 +1,4468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#fff7ed" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<title>Donna 工作台</title>
+<style>
+/* ===== 基础变量 ===== */
+:root {
+  --bg: #fafaf9;
+  --bg-soft: #f5f5f4;
+  --panel: #ffffff;
+  --text: #1c1917;
+  --text-soft: #57534e;
+  --text-mute: #a8a29e;
+  --border: #e7e5e4;
+  --border-soft: #f0eeed;
+  --accent: #f97316;
+  --accent-soft: #fff7ed;
+  --accent-strong: #ea580c;
+  --c1: #fb923c;
+  --c2: #34d399;
+  --c3: #60a5fa;
+  --c4: #c084fc;
+  --c5: #f472b6;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --success: #10b981;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 20px;
+  --sidebar-w: 240px;
+  --topbar-h: 56px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin:0; padding:0; height:100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, textarea, select { font-family: inherit; font-size: 14px; color: var(--text); }
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ===== 应用布局 ===== */
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* ===== 移动端顶栏 ===== */
+.mobile-topbar {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--topbar-h);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 12px;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-logo {
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(249,115,22,0.3);
+}
+.brand-logo.lg { width: 40px; height: 40px; font-size: 20px; border-radius: 12px; }
+.brand-title { font-weight: 600; font-size: 15px; }
+.brand-sub { font-size: 11px; color: var(--text-mute); margin-top: 2px; }
+.icon-btn {
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  color: var(--text-soft);
+  transition: background .15s;
+}
+.icon-btn:hover { background: var(--bg-soft); }
+.icon-btn:active { background: var(--border-soft); }
+
+/* ===== 侧边栏 ===== */
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 12px 20px;
+}
+.nav-section {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 12px 6px;
+}
+.nav-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-soft);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  transition: all .15s;
+  text-align: left;
+}
+.nav-item:hover { background: var(--bg-soft); color: var(--text); }
+.nav-item.active {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+.nav-item.active .nav-ico { color: var(--accent); }
+.nav-ico { color: var(--text-mute); display: flex; }
+.nav-item.active .nav-ico { color: var(--accent); }
+.sidebar-footer {
+  border-top: 1px solid var(--border-soft);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.footer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all .15s;
+}
+.footer-btn:hover { background: var(--border-soft); color: var(--text); }
+.footer-btn.danger { color: var(--danger); }
+.footer-btn.danger:hover { background: #fef2f2; }
+.footer-status {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-mute);
+  padding-top: 4px;
+}
+
+/* ===== 遮罩 ===== */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 40;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.overlay.show { display: block; opacity: 1; }
+
+/* ===== 主内容 ===== */
+.main {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 28px 32px 80px;
+  background: var(--bg);
+}
+.view { display: none; animation: fadeIn .25s; }
+.view.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.page-title { font-size: 26px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+.page-sub { color: var(--text-mute); margin: 6px 0 0; font-size: 13px; }
+.quick-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.chip {
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: var(--panel);
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  transition: all .15s;
+}
+.chip:hover { background: var(--accent-soft); color: var(--accent-strong); border-color: transparent; }
+
+/* ===== 按钮 ===== */
+.primary-btn {
+  padding: 10px 16px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s;
+  box-shadow: 0 4px 12px rgba(249,115,22,0.25);
+}
+.primary-btn:hover { background: var(--accent-strong); }
+.primary-btn:active { transform: scale(0.97); }
+.primary-btn.block { width: 100%; justify-content: center; }
+.ghost-btn {
+  padding: 10px 16px;
+  background: var(--bg-soft);
+  color: var(--text-soft);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 13px;
+  transition: all .15s;
+}
+.ghost-btn:hover { background: var(--border); }
+.ghost-btn.small { padding: 6px 12px; font-size: 12px; }
+
+/* ===== 欢迎卡 ===== */
+.welcome-card {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border: 1px solid #fed7aa;
+}
+.welcome-text h2 { margin: 0 0 6px; font-size: 18px; }
+.welcome-text p { margin: 0; color: var(--text-soft); font-size: 13px; }
+.welcome-emoji { font-size: 48px; }
+
+/* ===== 统计卡 ===== */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 18px;
+  border: 1px solid var(--border-soft);
+  position: relative;
+  overflow: hidden;
+  transition: transform .15s;
+}
+.stat-card:hover { transform: translateY(-2px); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  opacity: 0.08;
+  transform: translate(30%, -30%);
+}
+.stat-card.c1::before { background: var(--c1); }
+.stat-card.c2::before { background: var(--c2); }
+.stat-card.c3::before { background: var(--c3); }
+.stat-card.c4::before { background: var(--c4); }
+.stat-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  margin-bottom: 12px;
+}
+.c1 .stat-icon { background: var(--c1); }
+.c2 .stat-icon { background: var(--c2); }
+.c3 .stat-icon { background: var(--c3); }
+.c4 .stat-icon { background: var(--c4); }
+.stat-value { font-size: 24px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.01em; }
+.stat-label { font-size: 12px; color: var(--text-mute); }
+
+/* ===== 面板 ===== */
+.panel {
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-soft);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.panel-header h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.panel-body { padding: 16px 18px; }
+
+/* ===== 筛选条 ===== */
+.filter-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  background: var(--bg-soft);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  width: fit-content;
+}
+.filter {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-soft);
+  font-weight: 500;
+  transition: all .15s;
+}
+.filter.active { background: var(--panel); color: var(--text); box-shadow: var(--shadow-sm); }
+
+/* ===== 选择框 ===== */
+.select {
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 13px;
+}
+.seg {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-soft);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+}
+.seg-btn {
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-soft);
+  font-weight: 500;
+  transition: all .15s;
+}
+.seg-btn.active { background: var(--panel); color: var(--text); box-shadow: var(--shadow-sm); }
+
+/* ===== 任务列表 ===== */
+.task-list { display: flex; flex-direction: column; gap: 10px; }
+.task-item {
+  background: var(--panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: all .15s;
+}
+.task-item:hover { box-shadow: var(--shadow-sm); }
+.task-item.done { opacity: 0.6; }
+.task-item.done .task-title { text-decoration: line-through; color: var(--text-mute); }
+.task-check {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.task-check.checked { background: var(--success); border-color: var(--success); color: #fff; }
+.task-body { flex: 1; min-width: 0; }
+.task-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; word-break: break-word; }
+.task-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--text-mute); }
+.task-tag {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--bg-soft);
+  font-size: 11px;
+  font-weight: 500;
+}
+.task-tag.priority-high { background: #fef2f2; color: var(--danger); }
+.task-tag.priority-mid { background: #fffbeb; color: var(--warning); }
+.task-tag.priority-low { background: #f0fdf4; color: var(--success); }
+.task-tag.status-doing { background: #eff6ff; color: #2563eb; }
+.task-actions { display: flex; gap: 4px; }
+.icon-action {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-mute);
+  transition: all .15s;
+}
+.icon-action:hover { background: var(--bg-soft); color: var(--text); }
+.icon-action.danger:hover { background: #fef2f2; color: var(--danger); }
+
+/* ===== 财务 ===== */
+.finance-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.finance-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 16px;
+  border: 1px solid var(--border-soft);
+  position: relative;
+  overflow: hidden;
+}
+.finance-card::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+}
+.finance-card.income::after { background: var(--success); }
+.finance-card.expense::after { background: var(--danger); }
+.finance-card.balance::after { background: var(--accent); }
+.finance-label { font-size: 12px; color: var(--text-mute); margin-bottom: 6px; }
+.finance-value { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.finance-card.income .finance-value { color: var(--success); }
+.finance-card.expense .finance-value { color: var(--danger); }
+
+.chart-wrap {
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-soft);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.chart-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.chart-header h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.muted { color: var(--text-mute); font-size: 12px; }
+.chart { display: flex; align-items: flex-end; gap: 10px; height: 160px; padding-top: 8px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.bar { width: 100%; background: linear-gradient(180deg, #fb923c 0%, #f97316 100%); border-radius: 6px 6px 0 0; min-height: 4px; transition: all .3s; position: relative; }
+.bar:hover { filter: brightness(1.1); }
+.bar-val { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--text-mute); white-space: nowrap; }
+.bar-label { font-size: 11px; color: var(--text-mute); }
+
+.record-list { padding: 4px 0; }
+.record-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border-soft);
+  transition: background .15s;
+}
+.record-item:last-child { border-bottom: none; }
+.record-item:hover { background: var(--bg-soft); }
+.record-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  background: var(--bg-soft);
+  flex-shrink: 0;
+}
+.record-body { flex: 1; min-width: 0; }
+.record-title { font-weight: 500; font-size: 14px; margin-bottom: 2px; }
+.record-meta { font-size: 12px; color: var(--text-mute); display: flex; gap: 6px; }
+.record-amount { font-weight: 700; font-size: 15px; }
+.record-amount.income { color: var(--success); }
+.record-amount.expense { color: var(--danger); }
+
+/* ===== 学习锻炼 ===== */
+.study-pane { display: none; }
+.study-pane.active { display: block; }
+.study-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.ss-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 18px;
+  border: 1px solid var(--border-soft);
+  text-align: center;
+}
+.ss-label { font-size: 12px; color: var(--text-mute); margin-bottom: 6px; }
+.ss-value { font-size: 22px; font-weight: 700; }
+
+.timer-card {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border-radius: var(--radius-lg);
+  padding: 28px 20px;
+  text-align: center;
+  margin-bottom: 18px;
+  border: 1px solid #fed7aa;
+}
+.timer-display {
+  font-size: 56px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-strong);
+  letter-spacing: 0.02em;
+  margin-bottom: 12px;
+}
+.timer-mode { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; }
+.timer-mode .seg { background: rgba(255,255,255,0.6); }
+.timer-mode .seg-btn.active { background: #fff; color: var(--accent-strong); }
+.timer-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.timer-meta { font-size: 12px; color: var(--text-soft); margin-top: 12px; }
+
+.week-check { display: flex; justify-content: space-between; padding: 18px; gap: 6px; }
+.week-day {
+  flex: 1;
+  text-align: center;
+  padding: 12px 4px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s;
+  position: relative;
+}
+.week-day-name { color: var(--text-mute); font-size: 11px; margin-bottom: 4px; }
+.week-day.checked { background: linear-gradient(135deg, #34d399, #10b981); color: #fff; }
+.week-day.checked .week-day-name { color: rgba(255,255,255,0.8); }
+.week-day.today { box-shadow: 0 0 0 2px var(--accent); }
+.week-day-num { font-weight: 700; font-size: 16px; }
+
+.log-list { padding: 4px 0; }
+.log-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.log-item:last-child { border-bottom: none; }
+.log-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.log-body { flex: 1; min-width: 0; }
+.log-title { font-weight: 500; font-size: 14px; margin-bottom: 2px; }
+.log-meta { font-size: 12px; color: var(--text-mute); }
+.log-actions { display: flex; gap: 4px; }
+
+/* ===== 医疗 ===== */
+.med-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.med-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 18px;
+  border: 1px solid var(--border-soft);
+}
+.med-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+.med-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.med-input { flex: 1; display: flex; flex-direction: column; }
+.med-input.full { flex: 1 1 100%; }
+.med-input label { font-size: 12px; color: var(--text-mute); margin-bottom: 4px; }
+.med-input input {
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  font-size: 13px;
+  width: 100%;
+}
+.med-input input:focus { background: var(--panel); }
+.bmi-display {
+  font-size: 40px; font-weight: 700; text-align: center;
+  color: var(--accent-strong);
+  margin: 16px 0 8px;
+}
+.bmi-tip { text-align: center; font-size: 12px; color: var(--text-mute); }
+
+.med-tabs {
+  display: flex; gap: 4px;
+  background: var(--bg-soft);
+  padding: 4px;
+  margin: 0 18px;
+  border-radius: var(--radius-sm);
+  width: fit-content;
+}
+.med-pane { display: none; }
+.med-pane.active { display: block; }
+
+/* ===== 备忘录 ===== */
+.memo-toolbar {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.search {
+  flex: 1;
+  min-width: 200px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-mute);
+}
+.search input { flex: 1; border: none; background: transparent; outline: none; color: var(--text); }
+.color-filter { display: flex; gap: 6px; }
+.color-dot {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: linear-gradient(135deg, #f5f5f4, #e7e5e4);
+  transition: all .15s;
+  position: relative;
+}
+.color-dot.active { transform: scale(1.1); box-shadow: 0 0 0 2px var(--accent); border-color: transparent; }
+
+.memo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.memo-card {
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-soft);
+  min-height: 120px;
+  position: relative;
+  transition: all .15s;
+  display: flex;
+  flex-direction: column;
+}
+.memo-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.memo-title { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+.memo-content {
+  font-size: 13px; color: var(--text-soft);
+  white-space: pre-wrap; word-break: break-word;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.memo-meta {
+  font-size: 11px; color: var(--text-mute);
+  margin-top: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.memo-actions { display: flex; gap: 2px; opacity: 0; transition: opacity .15s; }
+.memo-card:hover .memo-actions { opacity: 1; }
+
+/* ===== 空状态 ===== */
+.empty {
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--text-mute);
+  font-size: 13px;
+}
+
+/* ===== 弹窗 ===== */
+.modal {
+  position: fixed; inset: 0; z-index: 100;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal.show { display: flex; animation: modalIn .2s; }
+@keyframes modalIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-mask { position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
+.modal-card {
+  position: relative;
+  background: var(--panel);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  display: flex; flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  animation: modalUp .25s;
+}
+@keyframes modalUp { from { transform: translateY(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+.modal-header {
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border-soft);
+}
+.modal-header h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+
+/* ===== 表单 ===== */
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; color: var(--text-mute); margin-bottom: 6px; font-weight: 500; }
+.field input, .field textarea, .field select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  font-size: 14px;
+  transition: all .15s;
+}
+.field input:focus, .field textarea:focus, .field select:focus { background: var(--panel); border-color: var(--accent); outline: none; }
+.field textarea { min-height: 90px; resize: vertical; }
+.field-row { display: flex; gap: 10px; }
+.field-row .field { flex: 1; }
+.color-pick { display: flex; gap: 6px; }
+.color-pick button {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: all .15s;
+}
+.color-pick button.active { border-color: var(--text); transform: scale(1.1); }
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-soft); }
+.tag-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-options button {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: var(--bg-soft);
+  font-size: 12px;
+  color: var(--text-soft);
+  border: 1px solid transparent;
+}
+.tag-options button.active { background: var(--accent-soft); color: var(--accent-strong); border-color: var(--accent); }
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(28,25,23,0.92);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .25s;
+  backdrop-filter: blur(8px);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== 响应式 ===== */
+@media (max-width: 960px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .med-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .app { grid-template-columns: 1fr; }
+  .mobile-topbar { display: flex; }
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 280px;
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform .25s;
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .main { padding: calc(var(--topbar-h) + 16px) 16px calc(80px + var(--safe-bottom)); }
+  .page-title { font-size: 22px; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-card { padding: 14px; }
+  .stat-value { font-size: 20px; }
+  .finance-summary { grid-template-columns: 1fr; }
+  .study-summary { grid-template-columns: 1fr; }
+  .timer-display { font-size: 48px; }
+  .quick-actions { width: 100%; }
+  .welcome-card { padding: 18px; }
+  .welcome-emoji { font-size: 36px; }
+  .field-row { flex-direction: column; gap: 0; }
+  .med-row { flex-direction: column; }
+  .modal { padding: 0; align-items: flex-end; }
+  .modal-card { max-width: 100%; border-radius: 20px 20px 0 0; max-height: 90vh; }
+}
+
+@media (max-width: 380px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .week-check { flex-wrap: wrap; }
+  .week-day { flex-basis: calc(33.33% - 4px); }
+}
+
+/* ===== 抖音助手 ===== */
+.dy-bloggers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.dy-blogger-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 14px 10px;
+  text-align: center;
+  border: 1px solid var(--border-soft);
+  transition: box-shadow .2s;
+}
+.dy-blogger-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.dy-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  margin: 0 auto 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; color: #fff;
+}
+.dy-avatar.cc { background: linear-gradient(135deg, #f9a8d4, #ec4899); }
+.dy-avatar.yu { background: linear-gradient(135deg, #c4b5fd, #8b5cf6); }
+.dy-avatar.chen { background: linear-gradient(135deg, #fcd34d, #f59e0b); }
+.dy-blogger-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.dy-blogger-style { font-size: 11px; color: var(--text-mute); margin-top: 2px; }
+.dy-follow {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--primary);
+  text-decoration: none;
+  padding: 2px 10px;
+  border: 1px solid var(--primary);
+  border-radius: 12px;
+}
+
+.dy-date { font-size: 12px; color: var(--text-mute); font-weight: 400; margin-left: 6px; }
+.dy-source {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  color: #16a34a;
+}
+.dy-source.fallback { background: #fef3c7; color: #d97706; }
+
+.dy-loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-mute);
+  font-size: 14px;
+}
+
+.dy-video-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dy-video-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-soft);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  transition: transform .15s, box-shadow .15s;
+  border: 1px solid transparent;
+}
+.dy-video-card:active { transform: scale(.98); }
+.dy-video-card:hover { border-color: var(--primary); box-shadow: 0 2px 12px rgba(236,72,153,.1); }
+.dy-cover {
+  width: 80px; height: 106px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  overflow: hidden;
+  position: relative;
+}
+.dy-cover img { width: 100%; height: 100%; object-fit: cover; }
+.dy-cover-fallback {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+  font-size: 22px; font-weight: 700; color: #fff;
+}
+.dy-cover-fallback.cc { background: linear-gradient(135deg, #f9a8d4, #ec4899); }
+.dy-cover-fallback.yu { background: linear-gradient(135deg, #c4b5fd, #8b5cf6); }
+.dy-cover-fallback.chen { background: linear-gradient(135deg, #fcd34d, #f59e0b); }
+.dy-cover::after {
+  content: '▶';
+  position: absolute;
+  bottom: 4px; right: 4px;
+  width: 20px; height: 20px;
+  background: rgba(0,0,0,.6);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.dy-video-body { flex: 1; min-width: 0; }
+.dy-rank {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary);
+  padding: 1px 7px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+.dy-video-title {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.dy-video-author {
+  font-size: 12px;
+  color: var(--primary);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.dy-video-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--text-mute);
+  flex-wrap: wrap;
+}
+.dy-video-meta span { display: flex; align-items: center; gap: 2px; }
+.dy-style-tag {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #fdf2f8;
+  color: #be185d;
+  margin-right: 4px;
+}
+
+.dy-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dy-history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-soft);
+  border-radius: var(--radius);
+  font-size: 13px;
+}
+.dy-history-date {
+  font-weight: 600;
+  color: var(--text);
+  flex-shrink: 0;
+  width: 90px;
+}
+.dy-history-titles {
+  flex: 1;
+  color: var(--text-mute);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dy-tip-card {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fffbeb;
+  border-radius: var(--radius);
+  border: 1px solid #fde68a;
+  margin-top: 16px;
+}
+.dy-tip-icon { font-size: 20px; flex-shrink: 0; }
+.dy-tip-text strong { font-size: 13px; color: #92400e; }
+.dy-tip-text p { font-size: 12px; color: #a16207; line-height: 1.6; margin-top: 4px; }
+
+@media (max-width: 720px) {
+  .dy-cover { width: 70px; height: 93px; }
+  .dy-blogger-card { padding: 10px 6px; }
+  .dy-avatar { width: 36px; height: 36px; font-size: 14px; }
+  .dy-blogger-name { font-size: 12px; }
+  .dy-blogger-style { font-size: 10px; }
+  .dy-follow { font-size: 10px; padding: 2px 8px; }
+}
+
+.ov-dy-list { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.ov-dy-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-soft);
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid transparent;
+  transition: border-color .15s;
+}
+.ov-dy-item:hover { border-color: var(--primary); }
+.ov-dy-rank {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ov-dy-body { flex: 1; min-width: 0; }
+.ov-dy-title {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ov-dy-author {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 2px;
+}
+
+/* ===== 英语学习 ===== */
+.eng-progress-card {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  border: 1px solid #fed7aa;
+}
+.eng-progress-ring { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
+.eng-progress-num {
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: var(--accent-strong);
+}
+.eng-progress-info { flex: 1; min-width: 0; }
+.eng-progress-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.eng-progress-sub { font-size: 12px; color: var(--text-soft); margin-top: 4px; }
+.eng-progress-tip { font-size: 11px; color: var(--accent-strong); margin-top: 6px; font-weight: 500; }
+
+.review-list {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.review-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.review-item.urgent { background: #fee2e2; border-color: #fca5a5; }
+.review-flag { color: var(--danger); font-size: 14px; }
+.review-word { font-weight: 600; flex: 1; color: var(--text); }
+.review-step { font-size: 10px; padding: 2px 6px; border-radius: 8px; background: var(--danger); color: #fff; }
+.review-action {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.eng-train-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.eng-train-card {
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 14px 8px;
+  text-align: center;
+  border: 1px solid var(--border-soft);
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+}
+.eng-train-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(249,115,22,.1); }
+.eng-train-card:active { transform: scale(.96); }
+.eng-train-card.done { background: #f0fdf4; border-color: #bbf7d0; }
+.eng-train-icon {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  margin: 0 auto 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.eng-train-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.eng-train-time { font-size: 11px; color: var(--text-mute); margin-top: 2px; }
+.eng-train-progress { font-size: 10px; color: var(--accent); margin-top: 4px; font-weight: 600; }
+.eng-train-card.done .eng-train-progress { color: var(--success); }
+
+/* 训练详情 */
+.eng-train-detail { margin-top: 12px; }
+.eng-detail-back { margin-bottom: 12px; }
+
+.flash-card {
+  perspective: 1000px;
+  width: 100%;
+  min-height: 220px;
+  margin: 12px 0;
+}
+.flash-card-inner {
+  position: relative;
+  width: 100%; min-height: 220px;
+  transition: transform .6s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+.flash-card.flipped .flash-card-inner { transform: rotateY(180deg); }
+.flash-card-face {
+  position: absolute; inset: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 24px 20px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 1px solid var(--border-soft);
+  text-align: center;
+}
+.flash-card-back { transform: rotateY(180deg); background: linear-gradient(135deg, #fef3c7, #fde68a); }
+.flash-card-word { font-size: 32px; font-weight: 700; color: var(--text); }
+.flash-card-phonetic { font-size: 14px; color: var(--text-mute); margin-top: 6px; }
+.flash-card-meaning { font-size: 22px; font-weight: 600; color: var(--accent-strong); }
+.flash-card-example { font-size: 14px; color: var(--text-soft); margin-top: 12px; line-height: 1.6; }
+.flash-card-tap { font-size: 11px; color: var(--text-mute); margin-top: 10px; }
+
+.tts-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.tts-btn:active { transform: scale(.92); }
+.tts-btn.speaking { background: var(--accent-strong); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.6 } }
+
+.train-actions {
+  display: flex; gap: 8px;
+  margin-top: 12px;
+}
+.train-actions button { flex: 1; }
+
+.speak-bot-bubble {
+  background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+  border-radius: 14px 14px 14px 4px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--text);
+  margin: 8px 0;
+  max-width: 80%;
+}
+.speak-user-bubble {
+  background: linear-gradient(135deg, #dbeafe, #bae6fd);
+  border-radius: 14px 14px 4px 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--text);
+  margin: 8px 0 8px auto;
+  max-width: 80%;
+  text-align: right;
+}
+
+.quick-replies {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 8px;
+}
+.quick-reply {
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+}
+.quick-reply:active { background: var(--accent); color: #fff; }
+
+.record-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px 20px;
+  border-radius: 24px;
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 12px auto;
+}
+.record-btn.recording { background: var(--accent-strong); animation: pulse 1s infinite; }
+.record-btn:disabled { background: var(--text-mute); cursor: not-allowed; }
+
+.score-display {
+  text-align: center;
+  margin: 12px 0;
+}
+.score-num {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent-strong);
+}
+.score-label { font-size: 12px; color: var(--text-mute); }
+
+.listen-q {
+  background: var(--bg-soft);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 12px 0;
+}
+.listen-passage { font-size: 15px; line-height: 1.8; color: var(--text); }
+.listen-options { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.listen-option {
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 14px;
+}
+.listen-option:active { background: var(--accent); color: #fff; }
+.listen-option.correct { background: #f0fdf4; border-color: #bbf7d0; color: var(--success); }
+.listen-option.wrong { background: #fef2f2; border-color: #fecaca; color: var(--danger); }
+
+.eng-tip-card {
+  display: flex; gap: 12px;
+  padding: 14px 16px;
+  background: #f0f9ff;
+  border-radius: 14px;
+  border: 1px solid #bae6fd;
+  margin-top: 14px;
+}
+.eng-tip-card .dy-tip-text strong { color: #075985; }
+.eng-tip-card .dy-tip-text p { color: #0369a1; }
+
+@media (max-width: 720px) {
+  .eng-train-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 380px) {
+  .eng-train-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .eng-train-card { padding: 10px 6px; }
+  .eng-train-icon { width: 36px; height: 36px; }
+}
+
+
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <!-- 移动端顶栏 -->
+  <header class="mobile-topbar">
+    <button class="icon-btn menu-toggle" id="menuToggle" aria-label="菜单">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="brand">
+      <div class="brand-logo">D</div>
+      <div class="brand-text">
+        <div class="brand-title">Donna 工作台</div>
+        <div class="brand-sub">你的个人生活管理系统</div>
+      </div>
+    </div>
+    <button class="icon-btn" id="topSearch" aria-label="搜索">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
+  </header>
+
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-logo lg">D</div>
+      <div>
+        <div class="brand-title">Donna 工作台</div>
+        <div class="brand-sub">个人生活管理系统</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-section">主要功能</div>
+      <button class="nav-item active" data-view="overview">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+        <span>总览</span>
+      </button>
+      <button class="nav-item" data-view="plan">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+        <span>每日工作计划</span>
+      </button>
+      <button class="nav-item" data-view="finance">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+        <span>每日记账</span>
+      </button>
+      <button class="nav-item" data-view="study">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+        <span>学习锻炼</span>
+      </button>
+      <button class="nav-item" data-view="english">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10"/><path d="M12 2a15 15 0 0 0-4 10 15 15 0 0 0 4 10"/></svg></span>
+        <span>每日英语学习</span>
+      </button>
+      <button class="nav-item" data-view="medical">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/></svg></span>
+        <span>医疗</span>
+      </button>
+      <button class="nav-item" data-view="memo">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span>
+        <span>备忘录</span>
+      </button>
+      <div class="nav-section" style="margin-top:8px">灵感工具</div>
+      <button class="nav-item" data-view="douyin">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg></span>
+        <span>抖音助手</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="footer-btn" id="exportBtn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        导出数据
+      </button>
+      <button class="footer-btn" id="importBtn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        导入数据
+      </button>
+      <input type="file" id="importInput" accept="application/json" hidden />
+      <button class="footer-btn danger" id="resetBtn">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        重置数据
+      </button>
+      <div class="footer-status">本地存储已同步</div>
+    </div>
+  </aside>
+
+  <!-- 遮罩（移动端） -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- 主内容区 -->
+  <main class="main">
+    <!-- 总览 -->
+    <section class="view active" id="view-overview">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">总览</h1>
+          <p class="page-sub" id="todayText">今天是个好日子</p>
+        </div>
+        <div class="quick-actions">
+          <button class="chip" data-jump="plan">+ 新建任务</button>
+          <button class="chip" data-jump="finance">+ 记一笔</button>
+          <button class="chip" data-jump="douyin">🎬 今日穿搭</button>
+        </div>
+      </div>
+
+      <div class="welcome-card">
+        <div class="welcome-text">
+          <h2>欢迎使用 Donna 工作台</h2>
+          <p>这里是你的个人生活指挥中心，让每一天都被温柔以待。</p>
+        </div>
+        <div class="welcome-emoji">🌿</div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card c1">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+          <div class="stat-value" id="stat-tasks">0</div>
+          <div class="stat-label">今日待办</div>
+        </div>
+        <div class="stat-card c2">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="stat-value" id="stat-expense">¥0</div>
+          <div class="stat-label">今日支出</div>
+        </div>
+        <div class="stat-card c3">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+          <div class="stat-value" id="stat-study">0 分钟</div>
+          <div class="stat-label">今日学习锻炼</div>
+        </div>
+        <div class="stat-card c4">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="stat-value" id="stat-memo">0</div>
+          <div class="stat-label">备忘录条数</div>
+        </div>
+      </div>
+
+      <div class="panel" id="ov-dy-panel" style="display:none">
+        <div class="panel-header">
+          <h3>🎬 今日穿搭灵感</h3>
+          <button class="ghost-btn small" data-jump="douyin">查看更多</button>
+        </div>
+        <div class="ov-dy-list" id="ov-dy-list"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>今日动态</h3>
+        </div>
+        <div class="panel-body" id="overview-activity">
+          <div class="empty">还没有任何活动，开始记录吧 ✨</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 每日工作计划 -->
+    <section class="view" id="view-plan">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">每日工作计划</h1>
+          <p class="page-sub">规划你的 24 小时，从容不迫</p>
+        </div>
+        <div class="quick-actions">
+          <select class="select" id="planDate">
+            <option value="today">今天</option>
+            <option value="tomorrow">明天</option>
+            <option value="week">本周</option>
+          </select>
+          <button class="primary-btn" id="addTaskBtn">+ 新建任务</button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter active" data-filter="all">全部</button>
+        <button class="filter" data-filter="todo">待办</button>
+        <button class="filter" data-filter="doing">进行中</button>
+        <button class="filter" data-filter="done">已完成</button>
+      </div>
+
+      <div class="task-list" id="taskList"></div>
+    </section>
+
+    <!-- 每日记账 -->
+    <section class="view" id="view-finance">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">每日记账</h1>
+          <p class="page-sub">每一笔收支，都值得被记住</p>
+        </div>
+        <div class="quick-actions">
+          <button class="primary-btn" id="addRecordBtn">+ 记一笔</button>
+        </div>
+      </div>
+
+      <div class="finance-summary">
+        <div class="finance-card income">
+          <div class="finance-label">本月收入</div>
+          <div class="finance-value" id="monthIncome">¥0.00</div>
+        </div>
+        <div class="finance-card expense">
+          <div class="finance-label">本月支出</div>
+          <div class="finance-value" id="monthExpense">¥0.00</div>
+        </div>
+        <div class="finance-card balance">
+          <div class="finance-label">结余</div>
+          <div class="finance-value" id="monthBalance">¥0.00</div>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-header">
+          <h3>近 7 天支出</h3>
+          <span class="muted">柱状图</span>
+        </div>
+        <div class="chart" id="financeChart"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>账单列表</h3>
+          <div class="seg">
+            <button class="seg-btn active" data-seg="all">全部</button>
+            <button class="seg-btn" data-seg="expense">支出</button>
+            <button class="seg-btn" data-seg="income">收入</button>
+          </div>
+        </div>
+        <div class="record-list" id="recordList"></div>
+      </div>
+    </section>
+
+    <!-- 学习锻炼 -->
+    <section class="view" id="view-study">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">学习锻炼</h1>
+          <p class="page-sub">每天进步一点点</p>
+        </div>
+        <div class="quick-actions">
+          <div class="seg">
+            <button class="seg-btn active" data-study-tab="learn">学习</button>
+            <button class="seg-btn" data-study-tab="sport">锻炼</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 学习 -->
+      <div class="study-pane active" id="study-learn">
+        <div class="study-summary">
+          <div class="ss-card">
+            <div class="ss-label">今日学习</div>
+            <div class="ss-value" id="learnToday">0 分钟</div>
+          </div>
+          <div class="ss-card">
+            <div class="ss-label">连续打卡</div>
+            <div class="ss-value" id="learnStreak">0 天</div>
+          </div>
+          <div class="ss-card">
+            <div class="ss-label">总学习时长</div>
+            <div class="ss-value" id="learnTotal">0 分钟</div>
+          </div>
+        </div>
+
+        <div class="timer-card">
+          <div class="timer-display" id="timerDisplay">25:00</div>
+          <div class="timer-mode">
+            <button class="seg-btn active" data-mode="learn" data-min="25">学习 25</button>
+            <button class="seg-btn" data-mode="learn" data-min="45">深度 45</button>
+            <button class="seg-btn" data-mode="learn" data-min="5">短休 5</button>
+          </div>
+          <div class="timer-controls">
+            <button class="primary-btn" id="timerStart">开始</button>
+            <button class="ghost-btn" id="timerPause">暂停</button>
+            <button class="ghost-btn" id="timerReset">重置</button>
+          </div>
+          <div class="timer-meta" id="timerMeta">选择时长后开始专注</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>学习记录</h3>
+            <button class="ghost-btn small" id="addLearnLog">+ 手动添加</button>
+          </div>
+          <div class="log-list" id="learnLog"></div>
+        </div>
+      </div>
+
+      <!-- 锻炼 -->
+      <div class="study-pane" id="study-sport">
+        <div class="study-summary">
+          <div class="ss-card">
+            <div class="ss-label">本周锻炼</div>
+            <div class="ss-value" id="sportWeek">0 次</div>
+          </div>
+          <div class="ss-card">
+            <div class="ss-label">总时长</div>
+            <div class="ss-value" id="sportTotal">0 分钟</div>
+          </div>
+          <div class="ss-card">
+            <div class="ss-label">消耗热量</div>
+            <div class="ss-value" id="sportCal">0 kcal</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>本周打卡</h3>
+          </div>
+          <div class="week-check" id="weekCheck"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>锻炼记录</h3>
+            <button class="ghost-btn small" id="addSportLog">+ 新增</button>
+          </div>
+          <div class="log-list" id="sportLog"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 每日英语学习 -->
+    <section class="view" id="view-english">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">每日英语学习</h1>
+          <p class="page-sub">60 分钟·沟通优先型</p>
+        </div>
+        <div class="quick-actions">
+          <button class="ghost-btn small" id="engSettingsBtn">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            时长设置
+          </button>
+        </div>
+      </div>
+
+      <!-- 进度卡 -->
+      <div class="eng-progress-card">
+        <div class="eng-progress-ring">
+          <svg viewBox="0 0 64 64" width="80" height="80">
+            <circle cx="32" cy="32" r="28" fill="none" stroke="#fde68a" stroke-width="6"/>
+            <circle id="engRingFill" cx="32" cy="32" r="28" fill="none" stroke="#f59e0b" stroke-width="6"
+                    stroke-linecap="round" stroke-dasharray="176" stroke-dashoffset="176"
+                    transform="rotate(-90 32 32)"/>
+          </svg>
+          <div class="eng-progress-num" id="engProgressNum">0/60</div>
+        </div>
+        <div class="eng-progress-info">
+          <div class="eng-progress-title">今日训练进度</div>
+          <div class="eng-progress-sub" id="engProgressSub">完成训练项目以积累时长</div>
+          <div class="eng-progress-tip" id="engProgressTip"></div>
+        </div>
+      </div>
+
+      <!-- 复习板（艾宾浩斯） -->
+      <div class="panel" id="eng-review-panel" style="display:none">
+        <div class="panel-header">
+          <h3>🔴 复习板（艾宾浩斯曲线）</h3>
+          <span class="muted" style="font-size:12px" id="engReviewCount"></span>
+        </div>
+        <div class="review-list" id="engReviewList"></div>
+      </div>
+
+      <!-- 训练卡片网格 -->
+      <div class="eng-train-grid">
+        <div class="eng-train-card eng-train-word" data-type="word">
+          <div class="eng-train-icon" style="background:linear-gradient(135deg,#bae6fd,#3b82f6)">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+          </div>
+          <div class="eng-train-name">单词</div>
+          <div class="eng-train-time" data-min="word">15 分钟</div>
+          <div class="eng-train-progress" data-progress="word">0/15 完成</div>
+        </div>
+        <div class="eng-train-card eng-train-sent" data-type="sent">
+          <div class="eng-train-icon" style="background:linear-gradient(135deg,#bbf7d0,#10b981)">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="eng-train-name">句型</div>
+          <div class="eng-train-time" data-min="sent">15 分钟</div>
+          <div class="eng-train-progress" data-progress="sent">0/15 完成</div>
+        </div>
+        <div class="eng-train-card eng-train-speak" data-type="speak">
+          <div class="eng-train-icon" style="background:linear-gradient(135deg,#fbcfe8,#ec4899)">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <div class="eng-train-name">口语</div>
+          <div class="eng-train-time" data-min="speak">15 分钟</div>
+          <div class="eng-train-progress" data-progress="speak">0/15 完成</div>
+        </div>
+        <div class="eng-train-card eng-train-listen" data-type="listen">
+          <div class="eng-train-icon" style="background:linear-gradient(135deg,#ddd6fe,#8b5cf6)">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3z"/><path d="M3 19a2 2 0 0 0 2 2h1v-6H3z"/></svg>
+          </div>
+          <div class="eng-train-name">听力</div>
+          <div class="eng-train-time" data-min="listen">10 分钟</div>
+          <div class="eng-train-progress" data-progress="listen">0/10 完成</div>
+        </div>
+        <div class="eng-train-card eng-train-gram" data-type="gram">
+          <div class="eng-train-icon" style="background:linear-gradient(135deg,#fde68a,#f59e0b)">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="eng-train-name">语法</div>
+          <div class="eng-train-time" data-min="gram">5 分钟</div>
+          <div class="eng-train-progress" data-progress="gram">0/5 完成</div>
+        </div>
+      </div>
+
+      <!-- 训练详情子视图 -->
+      <div class="eng-train-detail" id="engTrainDetail" style="display:none">
+        <div class="eng-detail-back">
+          <button class="ghost-btn small" id="engDetailBack">← 返回训练列表</button>
+        </div>
+        <div id="engDetailBody"></div>
+      </div>
+
+      <div class="eng-tip-card">
+        <div class="dy-tip-icon">🎯</div>
+        <div class="dy-tip-text">
+          <strong>训练理念</strong>
+          <p>每天 60 分钟围绕"日常英语沟通"：15 分钟单词（艾宾浩斯复习曲线）+ 15 分钟句型（场景跟读）+ 15 分钟口语（AI 对话）+ 10 分钟听力（场景对话）+ 5 分钟语法（微型卡片）。需要复习的词条会出现在顶部红标区。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 医疗 -->
+    <section class="view" id="view-medical">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">医疗健康</h1>
+          <p class="page-sub">关爱自己，从身体开始</p>
+        </div>
+        <div class="quick-actions">
+          <button class="primary-btn" id="addMedBtn">+ 新增记录</button>
+        </div>
+      </div>
+
+      <div class="med-grid">
+        <div class="med-card">
+          <div class="med-title">基础健康</div>
+          <div class="med-row">
+            <div class="med-input">
+              <label>身高 (cm)</label>
+              <input type="number" id="medHeight" placeholder="例如 165" />
+            </div>
+            <div class="med-input">
+              <label>体重 (kg)</label>
+              <input type="number" id="medWeight" step="0.1" placeholder="例如 55" />
+            </div>
+          </div>
+          <div class="med-row">
+            <div class="med-input">
+              <label>血压 (高压/低压)</label>
+              <input type="text" id="medBp" placeholder="例如 120/80" />
+            </div>
+            <div class="med-input">
+              <label>心率 (bpm)</label>
+              <input type="number" id="medHr" placeholder="例如 72" />
+            </div>
+          </div>
+          <div class="med-row">
+            <div class="med-input full">
+              <label>过敏史 / 慢性病</label>
+              <input type="text" id="medAllergy" placeholder="无 / 青霉素 / 高血压..." />
+            </div>
+          </div>
+          <button class="primary-btn block" id="saveMedBase">保存基础信息</button>
+        </div>
+
+        <div class="med-card">
+          <div class="med-title">BMI 速查</div>
+          <div class="bmi-display" id="bmiDisplay">--</div>
+          <div class="bmi-tip" id="bmiTip">填写身高体重后自动计算</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>就医与用药记录</h3>
+        </div>
+        <div class="med-tabs">
+          <button class="seg-btn active" data-med-tab="visit">就诊</button>
+          <button class="seg-btn" data-med-tab="med">用药</button>
+          <button class="seg-btn" data-med-tab="report">检查报告</button>
+        </div>
+        <div class="med-pane active" id="med-visit">
+          <div class="log-list" id="visitList"></div>
+        </div>
+        <div class="med-pane" id="med-med">
+          <div class="log-list" id="medList"></div>
+        </div>
+        <div class="med-pane" id="med-report">
+          <div class="log-list" id="reportList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 备忘录 -->
+    <section class="view" id="view-memo">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">备忘录</h1>
+          <p class="page-sub">捕捉每一瞬灵感</p>
+        </div>
+        <div class="quick-actions">
+          <button class="primary-btn" id="addMemoBtn">+ 新建</button>
+        </div>
+      </div>
+
+      <div class="memo-toolbar">
+        <div class="search">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="memoSearch" placeholder="搜索备忘录..." />
+        </div>
+        <div class="color-filter" id="colorFilter">
+          <button class="color-dot active" data-color="all" title="全部"></button>
+          <button class="color-dot" data-color="#fde68a" style="background:#fde68a"></button>
+          <button class="color-dot" data-color="#bbf7d0" style="background:#bbf7d0"></button>
+          <button class="color-dot" data-color="#bae6fd" style="background:#bae6fd"></button>
+          <button class="color-dot" data-color="#fbcfe8" style="background:#fbcfe8"></button>
+          <button class="color-dot" data-color="#ddd6fe" style="background:#ddd6fe"></button>
+        </div>
+      </div>
+
+      <div class="memo-grid" id="memoGrid"></div>
+    </section>
+
+    <!-- 抖音助手 -->
+    <section class="view" id="view-douyin">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">抖音助手</h1>
+          <p class="page-sub">每日精选穿搭带货视频灵感</p>
+        </div>
+        <div class="quick-actions">
+          <button class="ghost-btn small" id="dyRefresh">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            刷新
+          </button>
+        </div>
+      </div>
+
+      <div class="dy-bloggers">
+        <div class="dy-blogger-card">
+          <div class="dy-avatar cc">如</div>
+          <div class="dy-blogger-info">
+            <div class="dy-blogger-name">cc_如</div>
+            <div class="dy-blogger-style">温柔韩系穿搭</div>
+          </div>
+          <a class="dy-follow" href="https://www.douyin.com/user/MS4wLjABAAAA18pkb1aoXe0YceaJ_Z5P1Ytvrl0d1r5SonUnfnwYf-kH_RgBsxW64H6AoV5mY991" target="_blank" rel="noopener">主页</a>
+        </div>
+        <div class="dy-blogger-card">
+          <div class="dy-avatar yu">含</div>
+          <div class="dy-blogger-info">
+            <div class="dy-blogger-name">于佳含</div>
+            <div class="dy-blogger-style">小个子显瘦穿搭</div>
+          </div>
+          <a class="dy-follow" href="https://www.douyin.com/user/MS4wLjABAAAA8HH2dA8_qbkKPpy5JXA9D154VukSt8A5C156Cg67KvOb4ASxWeFlhwzx6A7kUMQE" target="_blank" rel="noopener">主页</a>
+        </div>
+        <div class="dy-blogger-card">
+          <div class="dy-avatar chen">鱼</div>
+          <div class="dy-blogger-info">
+            <div class="dy-blogger-name">陈鱼油</div>
+            <div class="dy-blogger-style">法式温柔穿搭</div>
+          </div>
+          <a class="dy-follow" href="https://www.douyin.com/user/MS4wLjABAAAASQCTNFcK_tdkA_2FMTxtPlkvNE1yC19osDrYLNYYEW-J9aIeO1pkBcogZefDabcV" target="_blank" rel="noopener">主页</a>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>今日精选 <span class="dy-date" id="dyDate"></span></h3>
+          <span class="dy-source" id="dySource"></span>
+        </div>
+        <div class="dy-video-list" id="dyVideoList">
+          <div class="dy-loading">加载中...</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>历史归档</h3>
+          <select class="select" id="dyHistory"></select>
+        </div>
+        <div class="dy-history-list" id="dyHistoryList"></div>
+      </div>
+
+      <div class="dy-tip-card">
+        <div class="dy-tip-icon">💡</div>
+        <div class="dy-tip-text">
+          <strong>使用说明</strong>
+          <p>系统每日自动抓取 cc_如、于佳含、陈鱼油 三位达人的最新穿搭视频。点击「刷新」可重新获取当日数据。由于抖音反爬机制，部分内容可能展示为风格化精选。点击视频卡片可跳转抖音查看完整内容。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal" id="modal">
+  <div class="modal-mask"></div>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modalTitle">标题</h3>
+      <button class="icon-btn" id="modalClose" aria-label="关闭">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   Donna 工作台 - 完整功能实现
+   - localStorage 持久化
+   - 模块：总览 / 工作计划 / 记账 / 学习锻炼 / 医疗 / 备忘录
+   ============================================================ */
+(() => {
+  'use strict';
+
+  /* ========== 工具方法 ========== */
+  const $  = (s, el=document) => el.querySelector(s);
+  const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const todayKey = (d=new Date()) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  };
+  const formatTime = (d) => {
+    const h = String(d.getHours()).padStart(2,'0');
+    const m = String(d.getMinutes()).padStart(2,'0');
+    return `${h}:${m}`;
+  };
+  const formatDate = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  };
+  const dayOfWeek = (d=new Date()) => ['日','一','二','三','四','五','六'][d.getDay()];
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+
+  function toast(msg) {
+    const el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => el.classList.remove('show'), 1800);
+  }
+
+  /* ========== 数据存储 ========== */
+  const STORE_KEY = 'donna-workbench-v1';
+  const REVIEW_INTERVALS = [1, 2, 4, 7, 15]; // 艾宾浩斯间隔(天)
+  const ENG_SCENES = {
+    social: { name: '社交寒暄', icon: '👋', color: '#f9a8d4' },
+    shopping: { name: '购物消费', icon: '🛍️', color: '#c4b5fd' },
+    restaurant: { name: '餐厅点餐', icon: '🍽️', color: '#fcd34d' },
+    travel: { name: '出行问路', icon: '✈️', color: '#93c5fd' },
+    workplace: { name: '职场沟通', icon: '💼', color: '#86efac' },
+    daily: { name: '日常起居', icon: '🏠', color: '#fda4af' }
+  };
+
+  // 内置词库（6 场景 × 35 词 = 210 词）
+  const PRESET_VOCAB = [
+    // social 社交寒暄
+    {scene:'social',word:'introduce',phonetic:'/ˌɪntrəˈdjuːs/',meaning:'介绍',example:'Let me introduce myself.'},
+    {scene:'social',word:'acquaintance',phonetic:'/əˈkweɪntəns/',meaning:'熟人',example:'We are acquaintances.'},
+    {scene:'social',word:'greeting',phonetic:'/ˈɡriːtɪŋ/',meaning:'问候',example:'Greetings from China!'},
+    {scene:'social',word:'farewell',phonetic:'/feəˈwel/',meaning:'告别',example:'A heartfelt farewell.'},
+    {scene:'social',word:'appreciate',phonetic:'/əˈpriːʃieɪt/',meaning:'感激',example:'I appreciate your help.'},
+    {scene:'social',word:'honor',phonetic:'/ˈɒnə(r)/',meaning:'荣幸',example:'It is an honor to meet you.'},
+    {scene:'social',word:'charming',phonetic:'/ˈtʃɑːmɪŋ/',meaning:'迷人的',example:'What a charming person!'},
+    {scene:'social',word:'humble',phonetic:'/ˈhʌmbl/',meaning:'谦虚的',example:'Thank you for your humble words.'},
+    {scene:'social',word:'consideration',phonetic:'/kənˌsɪdəˈreɪʃn/',meaning:'考虑;体贴',example:'Thank you for your consideration.'},
+    {scene:'social',word:'acquaint',phonetic:'/əˈkweɪnt/',meaning:'使熟悉',example:'Let me acquaint you with my friend.'},
+    {scene:'social',word:'cordial',phonetic:'/ˈkɔːdiəl/',meaning:'真诚的',example:'A cordial welcome.'},
+    {scene:'social',word:'blessing',phonetic:'/ˈblesɪŋ/',meaning:'祝福',example:'Best blessings to you.'},
+    {scene:'social',word:'companion',phonetic:'/kəmˈpæniən/',meaning:'同伴',example:'She is my travel companion.'},
+    {scene:'social',word:'sympathy',phonetic:'/ˈsɪmpəθi/',meaning:'同情',example:'I have deep sympathy for you.'},
+    {scene:'social',word:'empathy',phonetic:'/ˈempəθi/',meaning:'共情',example:'Empathy is important.'},
+    {scene:'social',word:'comfort',phonetic:'/ˈkʌmfət/',meaning:'安慰',example:'Your words comfort me.'},
+    {scene:'social',word:'encourage',phonetic:'/ɪnˈkʌrɪdʒ/',meaning:'鼓励',example:'Please encourage me!'},
+    {scene:'social',word:'support',phonetic:'/səˈpɔːt/',meaning:'支持',example:'Thank you for your support.'},
+    {scene:'social',word:'reunion',phonetic:'/riːˈjuːniən/',meaning:'重聚',example:'Our family reunion is tomorrow.'},
+    {scene:'social',word:'chat',phonetic:'/tʃæt/',meaning:'聊天',example:'We had a nice chat.'},
+    {scene:'social',word:'friendly',phonetic:'/ˈfrendli/',meaning:'友好的',example:'She is very friendly.'},
+    {scene:'social',word:'polite',phonetic:'/pəˈlaɪt/',meaning:'礼貌的',example:'Be polite to elders.'},
+    {scene:'social',word:'rude',phonetic:'/ruːd/',meaning:'粗鲁的',example:'That was rude.'},
+    {scene:'social',word:'enthusiastic',phonetic:'/ɪnˌθjuːziˈæstɪk/',meaning:'热情的',example:'He is enthusiastic about music.'},
+    {scene:'social',word:'sincere',phonetic:'/sɪnˈsɪə(r)/',meaning:'真诚的',example:'Sincere apologies.'},
+    {scene:'social',word:'modest',phonetic:'/ˈmɒdɪst/',meaning:'谦逊的',example:'She is modest about her success.'},
+    {scene:'social',word:'generous',phonetic:'/ˈdʒenərəs/',meaning:'慷慨的',example:'Thank you for being generous.'},
+    {scene:'social',word:'patient',phonetic:'/ˈpeɪʃnt/',meaning:'耐心的',example:'Please be patient.'},
+    {scene:'social',word:'humorous',phonetic:'/ˈhjuːmərəs/',meaning:'幽默的',example:'He is humorous.'},
+    {scene:'social',word:'witty',phonetic:'/ˈwɪti/',meaning:'机智的',example:'She gave a witty reply.'},
+    {scene:'social',word:'chitchat',phonetic:'/ˈtʃɪttʃæt/',meaning:'闲谈',example:'Just chitchat between friends.'},
+    {scene:'social',word:'bond',phonetic:'/bɒnd/',meaning:'纽带',example:'Our bond is strong.'},
+    {scene:'social',word:'trust',phonetic:'/trʌst/',meaning:'信任',example:'I trust you.'},
+    {scene:'social',word:'forgive',phonetic:'/fəˈɡɪv/',meaning:'原谅',example:'Please forgive me.'},
+    {scene:'social',word:'apologize',phonetic:'/əˈpɒlədʒaɪz/',meaning:'道歉',example:'I apologize for the delay.'},
+    // shopping 购物消费
+    {scene:'shopping',word:'price',phonetic:'/praɪs/',meaning:'价格',example:'What is the price?'},
+    {scene:'shopping',word:'discount',phonetic:'/ˈdɪskaʊnt/',meaning:'折扣',example:'Is there a discount?'},
+    {scene:'shopping',word:'receipt',phonetic:'/rɪˈsiːt/',meaning:'收据',example:'Can I have a receipt?'},
+    {scene:'shopping',word:'refund',phonetic:'/ˈriːfʌnd/',meaning:'退款',example:'I want a refund.'},
+    {scene:'shopping',word:'exchange',phonetic:'/ɪksˈtʃeɪndʒ/',meaning:'换货',example:'Can I exchange this?'},
+    {scene:'shopping',word:'size',phonetic:'/saɪz/',meaning:'尺码',example:'What size do you wear?'},
+    {scene:'shopping',word:'fitting',phonetic:'/ˈfɪtɪŋ/',meaning:'试穿',example:'May I try it on?'},
+    {scene:'shopping',word:'cashier',phonetic:'/kæˈʃɪə(r)/',meaning:'收银员',example:'The cashier is busy.'},
+    {scene:'shopping',word:'wallet',phonetic:'/ˈwɒlɪt/',meaning:'钱包',example:'I lost my wallet.'},
+    {scene:'shopping',word:'bargain',phonetic:'/ˈbɑːɡən/',meaning:'讨价还价',example:'Let us bargain.'},
+    {scene:'shopping',word:'expensive',phonetic:'/ɪkˈspensɪv/',meaning:'昂贵的',example:'It is too expensive.'},
+    {scene:'shopping',word:'affordable',phonetic:'/əˈfɔːdəbl/',meaning:'买得起的',example:'It is affordable.'},
+    {scene:'shopping',word:'checkout',phonetic:'/ˈtʃekaʊt/',meaning:'结账',example:'Checkout is fast.'},
+    {scene:'shopping',word:'cart',phonetic:'/kɑːt/',meaning:'购物车',example:'Push the cart, please.'},
+    {scene:'shopping',word:'aisle',phonetic:'/aɪl/',meaning:'过道',example:'The snacks aisle is over there.'},
+    {scene:'shopping',word:'bestseller',phonetic:'/ˈbestˌselə(r)/',meaning:'畅销品',example:'This is a bestseller.'},
+    {scene:'shopping',word:'sale',phonetic:'/seɪl/',meaning:'促销',example:'Today is a big sale.'},
+    {scene:'shopping',word:'coupon',phonetic:'/ˈkuːpɒn/',meaning:'优惠券',example:'Do you have a coupon?'},
+    {scene:'shopping',word:'membership',phonetic:'/ˈmembəʃɪp/',meaning:'会员',example:'I want a membership.'},
+    {scene:'shopping',word:'warranty',phonetic:'/ˈwɒrənti/',meaning:'保修',example:'Does it have a warranty?'},
+    {scene:'shopping',word:'customer',phonetic:'/ˈkʌstəmə(r)/',meaning:'顾客',example:'Customers first.'},
+    {scene:'shopping',word:'shopkeeper',phonetic:'/ˈʃɒpˌkiːpə(r)/',meaning:'店主',example:'The shopkeeper is kind.'},
+    {scene:'shopping',word:'queue',phonetic:'/kjuː/',meaning:'排队',example:'There is a long queue.'},
+    {scene:'shopping',word:'try on',phonetic:'/traɪ ɒn/',meaning:'试穿',example:'Can I try this on?'},
+    {scene:'shopping',word:'fit',phonetic:'/fɪt/',meaning:'合身',example:'It fits me perfectly.'},
+    {scene:'shopping',word:'color',phonetic:'/ˈkʌlə(r)/',meaning:'颜色',example:'What colors are available?'},
+    {scene:'shopping',word:'quality',phonetic:'/ˈkwɒləti/',meaning:'质量',example:'The quality is great.'},
+    {scene:'shopping',word:'brand',phonetic:'/brænd/',meaning:'品牌',example:'Which brand do you like?'},
+    {scene:'shopping',word:'souvenir',phonetic:'/ˌsuːvəˈnɪə(r)/',meaning:'纪念品',example:'Buy a souvenir.'},
+    {scene:'shopping',word:'gift',phonetic:'/ɡɪft/',meaning:'礼物',example:'It is a gift for my mom.'},
+    {scene:'shopping',word:'wrap',phonetic:'/ræp/',meaning:'包装',example:'Please gift-wrap it.'},
+    {scene:'shopping',word:'deliver',phonetic:'/dɪˈlɪvə(r)/',meaning:'送货',example:'When can you deliver?'},
+    {scene:'shopping',word:'shipping',phonetic:'/ˈʃɪpɪŋ/',meaning:'运输',example:'Shipping is free.'},
+    {scene:'shopping',word:'return',phonetic:'/rɪˈtɜːn/',meaning:'退回',example:'I want to return this.'},
+    {scene:'shopping',word:'counter',phonetic:'/ˈkaʊntə(r)/',meaning:'柜台',example:'Please go to the counter.'},
+    // restaurant 餐厅点餐
+    {scene:'restaurant',word:'menu',phonetic:'/ˈmenjuː/',meaning:'菜单',example:'May I see the menu?'},
+    {scene:'restaurant',word:'order',phonetic:'/ˈɔːdə(r)/',meaning:'点菜',example:'Are you ready to order?'},
+    {scene:'restaurant',word:'recommend',phonetic:'/ˈrekəmend/',meaning:'推荐',example:'What do you recommend?'},
+    {scene:'restaurant',word:'appetizer',phonetic:'/ˈæpɪtaɪzə(r)/',meaning:'开胃菜',example:'Try the appetizer.'},
+    {scene:'restaurant',word:'main course',phonetic:'/meɪn kɔːs/',meaning:'主菜',example:'The main course is delicious.'},
+    {scene:'restaurant',word:'dessert',phonetic:'/dɪˈzɜːt/',meaning:'甜点',example:'Any dessert today?'},
+    {scene:'restaurant',word:'beverage',phonetic:'/ˈbevərɪdʒ/',meaning:'饮料',example:'Choose your beverage.'},
+    {scene:'restaurant',word:'spicy',phonetic:'/ˈspaɪsi/',meaning:'辣的',example:'It is very spicy.'},
+    {scene:'restaurant',word:'bland',phonetic:'/blænd/',meaning:'清淡的',example:'I prefer bland food.'},
+    {scene:'restaurant',word:'delicious',phonetic:'/dɪˈlɪʃəs/',meaning:'美味的',example:'It is delicious!'},
+    {scene:'restaurant',word:'tasty',phonetic:'/ˈteɪsti/',meaning:'好吃的',example:'Very tasty!'},
+    {scene:'restaurant',word:'waiter',phonetic:'/ˈweɪtə(r)/',meaning:'服务员',example:'Excuse me, waiter!'},
+    {scene:'restaurant',word:'bill',phonetic:'/bɪl/',meaning:'账单',example:'May I have the bill?'},
+    {scene:'restaurant',word:'tip',phonetic:'/tɪp/',meaning:'小费',example:'Include the tip.'},
+    {scene:'restaurant',word:'reservation',phonetic:'/ˌrezəˈveɪʃn/',meaning:'预订',example:'I have a reservation.'},
+    {scene:'restaurant',word:'table',phonetic:'/ˈteɪbl/',meaning:'桌子',example:'A table for two, please.'},
+    {scene:'restaurant',word:'booth',phonetic:'/buːθ/',meaning:'卡座',example:'A booth near the window.'},
+    {scene:'restaurant',word:'takeout',phonetic:'/ˈteɪkaʊt/',meaning:'外卖',example:'Is this takeout?'},
+    {scene:'restaurant',word:'dine in',phonetic:'/daɪn ɪn/',meaning:'堂食',example:'Dine in or takeout?'},
+    {scene:'restaurant',word:'allergy',phonetic:'/ˈælədʒi/',meaning:'过敏',example:'I have a nut allergy.'},
+    {scene:'restaurant',word:'vegetarian',phonetic:'/ˌvedʒəˈteəriən/',meaning:'素食者',example:'Any vegetarian dish?'},
+    {scene:'restaurant',word:'steak',phonetic:'/steɪk/',meaning:'牛排',example:'Well-done steak.'},
+    {scene:'restaurant',word:'salad',phonetic:'/ˈsæləd/',meaning:'沙拉',example:'A side salad, please.'},
+    {scene:'restaurant',word:'soup',phonetic:'/suːp/',meaning:'汤',example:'Tomato soup.'},
+    {scene:'restaurant',word:'snack',phonetic:'/snæk/',meaning:'零食',example:'Just a snack.'},
+    {scene:'restaurant',word:'hungry',phonetic:'/ˈhʌŋɡri/',meaning:'饥饿的',example:'I am very hungry.'},
+    {scene:'restaurant',word:'thirsty',phonetic:'/ˈθɜːsti/',meaning:'口渴的',example:'I am thirsty.'},
+    {scene:'restaurant',word:'cheers',phonetic:'/tʃɪəz/',meaning:'干杯',example:'Cheers!'},
+    {scene:'restaurant',word:'flavor',phonetic:'/ˈfleɪvə(r)/',meaning:'风味',example:'What flavor do you like?'},
+    {scene:'restaurant',word:'fresh',phonetic:'/freʃ/',meaning:'新鲜的',example:'Very fresh.'},
+    {scene:'restaurant',word:'stale',phonetic:'/steɪl/',meaning:'不新鲜的',example:'It tastes stale.'},
+    {scene:'restaurant',word:'overcooked',phonetic:'/ˌəʊvəˈkʊkt/',meaning:'煮过头的',example:'The beef is overcooked.'},
+    {scene:'restaurant',word:'portion',phonetic:'/ˈpɔːʃn/',meaning:'份量',example:'The portion is large.'},
+    {scene:'restaurant',word:'fork',phonetic:'/fɔːk/',meaning:'叉子',example:'A fork and knife.'},
+    {scene:'restaurant',word:'napkin',phonetic:'/ˈnæpkɪn/',meaning:'餐巾',example:'Pass me a napkin.'},
+    // travel 出行问路
+    {scene:'travel',word:'direction',phonetic:'/dəˈrekʃn/',meaning:'方向',example:'Which direction is the station?'},
+    {scene:'travel',word:'straight',phonetic:'/streɪt/',meaning:'笔直的',example:'Go straight ahead.'},
+    {scene:'travel',word:'turn left',phonetic:'/tɜːn left/',meaning:'左转',example:'Turn left at the corner.'},
+    {scene:'travel',word:'turn right',phonetic:'/tɜːn raɪt/',meaning:'右转',example:'Turn right after the bank.'},
+    {scene:'travel',word:'intersection',phonetic:'/ˌɪntəˈsekʃn/',meaning:'十字路口',example:'At the intersection, turn right.'},
+    {scene:'travel',word:'landmark',phonetic:'/ˈlændmɑːk/',meaning:'地标',example:'The tower is a famous landmark.'},
+    {scene:'travel',word:'distance',phonetic:'/ˈdɪstəns/',meaning:'距离',example:'How far is the distance?'},
+    {scene:'travel',word:'subway',phonetic:'/ˈsʌbweɪ/',meaning:'地铁',example:'Take the subway.'},
+    {scene:'travel',word:'bus stop',phonetic:'/bʌs stɒp/',meaning:'公交站',example:'Where is the bus stop?'},
+    {scene:'travel',word:'taxi',phonetic:'/ˈtæksi/',meaning:'出租车',example:'Call a taxi.'},
+    {scene:'travel',word:'airport',phonetic:'/ˈeəpɔːt/',meaning:'机场',example:'I am going to the airport.'},
+    {scene:'travel',word:'flight',phonetic:'/flaɪt/',meaning:'航班',example:'My flight is delayed.'},
+    {scene:'travel',word:'gate',phonetic:'/ɡeɪt/',meaning:'登机口',example:'Gate 23.'},
+    {scene:'travel',word:'boarding',phonetic:'/ˈbɔːdɪŋ/',meaning:'登机',example:'Boarding begins at 9.'},
+    {scene:'travel',word:'luggage',phonetic:'/ˈlʌɡɪdʒ/',meaning:'行李',example:'Check your luggage.'},
+    {scene:'travel',word:'passport',phonetic:'/ˈpɑːspɔːt/',meaning:'护照',example:'Show your passport.'},
+    {scene:'travel',word:'visa',phonetic:'/ˈviːzə/',meaning:'签证',example:'I need a visa.'},
+    {scene:'travel',word:'customs',phonetic:'/ˈkʌstəmz/',meaning:'海关',example:'Go through customs.'},
+    {scene:'travel',word:'hotel',phonetic:'/həʊˈtel/',meaning:'酒店',example:'I booked a hotel.'},
+    {scene:'travel',word:'reservation',phonetic:'/ˌrezəˈveɪʃn/',meaning:'预订',example:'I have a reservation.'},
+    {scene:'travel',word:'check-in',phonetic:'/tʃek ɪn/',meaning:'登记入住',example:'Check-in starts at 2 pm.'},
+    {scene:'travel',word:'check-out',phonetic:'/tʃek aʊt/',meaning:'退房',example:'Check-out is at noon.'},
+    {scene:'travel',word:'suite',phonetic:'/swiːt/',meaning:'套房',example:'A suite with a view.'},
+    {scene:'travel',word:'reception',phonetic:'/rɪˈsepʃn/',meaning:'前台',example:'Call the reception.'},
+    {scene:'travel',word:'tourist',phonetic:'/ˈtʊərɪst/',meaning:'游客',example:'I am a tourist.'},
+    {scene:'travel',word:'map',phonetic:'/mæp/',meaning:'地图',example:'A city map.'},
+    {scene:'travel',word:'compass',phonetic:'/ˈkʌmpəs/',meaning:'指南针',example:'Bring a compass.'},
+    {scene:'travel',word:'weather',phonetic:'/ˈweðə(r)/',meaning:'天气',example:'The weather is nice.'},
+    {scene:'travel',word:'rain',phonetic:'/reɪn/',meaning:'雨',example:'It will rain.'},
+    {scene:'travel',word:'sunny',phonetic:'/ˈsʌni/',meaning:'晴朗的',example:'A sunny day.'},
+    {scene:'travel',word:'cloudy',phonetic:'/ˈklaʊdi/',meaning:'多云的',example:'Cloudy today.'},
+    {scene:'travel',word:'windy',phonetic:'/ˈwɪndi/',meaning:'有风的',example:'It is windy.'},
+    {scene:'travel',word:'snow',phonetic:'/snəʊ/',meaning:'雪',example:'Heavy snow.'},
+    {scene:'travel',word:'luggage tag',phonetic:'/ˈlʌɡɪdʒ tæɡ/',meaning:'行李牌',example:'Attach a luggage tag.'},
+    // workplace 职场沟通
+    {scene:'workplace',word:'meeting',phonetic:'/ˈmiːtɪŋ/',meaning:'会议',example:'We have a meeting at 10.'},
+    {scene:'workplace',word:'deadline',phonetic:'/ˈdedlaɪn/',meaning:'截止日期',example:'Meet the deadline.'},
+    {scene:'workplace',word:'colleague',phonetic:'/ˈkɒliːɡ/',meaning:'同事',example:'My colleague helped me.'},
+    {scene:'workplace',word:'boss',phonetic:'/bɒs/',meaning:'老板',example:'My boss is kind.'},
+    {scene:'workplace',word:'project',phonetic:'/ˈprɒdʒekt/',meaning:'项目',example:'A new project.'},
+    {scene:'workplace',word:'task',phonetic:'/tɑːsk/',meaning:'任务',example:'Finish the task.'},
+    {scene:'workplace',word:'report',phonetic:'/rɪˈpɔːt/',meaning:'报告',example:'Write a report.'},
+    {scene:'workplace',word:'schedule',phonetic:'/ˈʃedjuːl/',meaning:'日程',example:'Check my schedule.'},
+    {scene:'workplace',word:'overtime',phonetic:'/ˈəʊvətaɪm/',meaning:'加班',example:'No overtime today.'},
+    {scene:'workplace',word:'salary',phonetic:'/ˈsæləri/',meaning:'工资',example:'The salary is high.'},
+    {scene:'workplace',word:'promotion',phonetic:'/prəˈməʊʃn/',meaning:'晋升',example:'A well-deserved promotion.'},
+    {scene:'workplace',word:'resign',phonetic:'/rɪˈzaɪn/',meaning:'辞职',example:'I will resign.'},
+    {scene:'workplace',word:'interview',phonetic:'/ˈɪntəvjuː/',meaning:'面试',example:'A job interview.'},
+    {scene:'workplace',word:'resume',phonetic:'/rɪˈzjuːm/',meaning:'简历',example:'Send your resume.'},
+    {scene:'workplace',word:'feedback',phonetic:'/ˈfiːdbæk/',meaning:'反馈',example:'Please give feedback.'},
+    {scene:'workplace',word:'proposal',phonetic:'/prəˈpəʊzl/',meaning:'提案',example:'Submit a proposal.'},
+    {scene:'workplace',word:'strategy',phonetic:'/ˈstrætədʒi/',meaning:'策略',example:'A new strategy.'},
+    {scene:'workplace',word:'teamwork',phonetic:'/ˈtiːmwɜːk/',meaning:'团队合作',example:'Teamwork matters.'},
+    {scene:'workplace',word:'efficient',phonetic:'/ɪˈfɪʃnt/',meaning:'高效的',example:'Be efficient.'},
+    {scene:'workplace',word:'productive',phonetic:'/prəˈdʌktɪv/',meaning:'多产的',example:'A productive meeting.'},
+    {scene:'workplace',word:'workload',phonetic:'/ˈwɜːkləʊd/',meaning:'工作量',example:'A heavy workload.'},
+    {scene:'workplace',word:'agenda',phonetic:'/əˈdʒendə/',meaning:'议程',example:'The meeting agenda.'},
+    {scene:'workplace',word:'minutes',phonetic:'/ˈmɪnɪts/',meaning:'会议纪要',example:'Take the minutes.'},
+    {scene:'workplace',word:'presentation',phonetic:'/ˌpreznˈteɪʃn/',meaning:'演讲',example:'Give a presentation.'},
+    {scene:'workplace',word:'department',phonetic:'/dɪˈpɑːtmənt/',meaning:'部门',example:'Our sales department.'},
+    {scene:'workplace',word:'client',phonetic:'/ˈklaɪənt/',meaning:'客户',example:'A new client.'},
+    {scene:'workplace',word:'customer',phonetic:'/ˈkʌstəmə(r)/',meaning:'顾客',example:'Customer first.'},
+    {scene:'workplace',word:'contract',phonetic:'/ˈkɒntrækt/',meaning:'合同',example:'Sign the contract.'},
+    {scene:'workplace',word:'negotiate',phonetic:'/nɪˈɡəʊʃieɪt/',meaning:'谈判',example:'Let us negotiate.'},
+    {scene:'workplace',word:'remind',phonetic:'/rɪˈmaɪnd/',meaning:'提醒',example:'Please remind me.'},
+    {scene:'workplace',word:'update',phonetic:'/ʌpˈdeɪt/',meaning:'更新',example:'Update the file.'},
+    {scene:'workplace',word:'launch',phonetic:'/lɔːntʃ/',meaning:'启动',example:'Launch the product.'},
+    {scene:'workplace',word:'brainstorm',phonetic:'/ˈbreɪnstɔːm/',meaning:'头脑风暴',example:'Let us brainstorm.'},
+    {scene:'workplace',word:'conference',phonetic:'/ˈkɒnfərəns/',meaning:'大会',example:'A video conference.'},
+    // daily 日常起居
+    {scene:'daily',word:'morning',phonetic:'/ˈmɔːnɪŋ/',meaning:'早晨',example:'Good morning!'},
+    {scene:'daily',word:'evening',phonetic:'/ˈiːvnɪŋ/',meaning:'傍晚',example:'Good evening!'},
+    {scene:'daily',word:'wake up',phonetic:'/weɪk ʌp/',meaning:'起床',example:'I wake up at 7.'},
+    {scene:'daily',word:'breakfast',phonetic:'/ˈbrekfəst/',meaning:'早餐',example:'Have breakfast first.'},
+    {scene:'daily',word:'lunch',phonetic:'/lʌntʃ/',meaning:'午餐',example:'Lunch is at noon.'},
+    {scene:'daily',word:'dinner',phonetic:'/ˈdɪnə(r)/',meaning:'晚餐',example:'Dinner at 7.'},
+    {scene:'daily',word:'shower',phonetic:'/ˈʃaʊə(r)/',meaning:'淋浴',example:'Take a shower.'},
+    {scene:'daily',word:'sleep',phonetic:'/sliːp/',meaning:'睡觉',example:'I sleep at 11.'},
+    {scene:'daily',word:'alarm',phonetic:'/əˈlɑːm/',meaning:'闹钟',example:'Set the alarm.'},
+    {scene:'daily',word:'toothbrush',phonetic:'/ˈtuːθbrʌʃ/',meaning:'牙刷',example:'Brush your teeth.'},
+    {scene:'daily',word:'laundry',phonetic:'/ˈlɔːndri/',meaning:'洗衣',example:'Do the laundry.'},
+    {scene:'daily',word:'grocery',phonetic:'/ˈɡrəʊsəri/',meaning:'杂货',example:'Buy groceries.'},
+    {scene:'daily',word:'apartment',phonetic:'/əˈpɑːtmənt/',meaning:'公寓',example:'My apartment is small.'},
+    {scene:'daily',word:'neighbor',phonetic:'/ˈneɪbə(r)/',meaning:'邻居',example:'My neighbor is kind.'},
+    {scene:'daily',word:'key',phonetic:'/kiː/',meaning:'钥匙',example:'I lost my key.'},
+    {scene:'daily',word:'lock',phonetic:'/lɒk/',meaning:'锁',example:'Lock the door.'},
+    {scene:'daily',word:'window',phonetic:'/ˈwɪndəʊ/',meaning:'窗户',example:'Open the window.'},
+    {scene:'daily',word:'garbage',phonetic:'/ˈɡɑːbɪdʒ/',meaning:'垃圾',example:'Take out the garbage.'},
+    {scene:'daily',word:'recycle',phonetic:'/ˌriːˈsaɪkl/',meaning:'回收',example:'Please recycle.'},
+    {scene:'daily',word:'rent',phonetic:'/rent/',meaning:'租金',example:'Pay the rent.'},
+    {scene:'daily',word:'commute',phonetic:'/kəˈmjuːt/',meaning:'通勤',example:'A long commute.'},
+    {scene:'daily',word:'gym',phonetic:'/dʒɪm/',meaning:'健身房',example:'Go to the gym.'},
+    {scene:'daily',word:'exercise',phonetic:'/ˈeksəsaɪz/',meaning:'锻炼',example:'Daily exercise.'},
+    {scene:'daily',word:'medicine',phonetic:'/ˈmedsn/',meaning:'药',example:'Take your medicine.'},
+    {scene:'daily',word:'appointment',phonetic:'/əˈpɔɪntmənt/',meaning:'预约',example:'A doctor appointment.'},
+    {scene:'daily',word:'schedule',phonetic:'/ˈʃedjuːl/',meaning:'时间表',example:'A busy schedule.'},
+    {scene:'daily',word:'weekend',phonetic:'/ˈwiːkend/',meaning:'周末',example:'Happy weekend!'},
+    {scene:'daily',word:'holiday',phonetic:'/ˈhɒlədeɪ/',meaning:'假日',example:'A long holiday.'},
+    {scene:'daily',word:'weather',phonetic:'/ˈweðə(r)/',meaning:'天气',example:'What is the weather today?'},
+    {scene:'daily',word:'traffic',phonetic:'/ˈtræfɪk/',meaning:'交通',example:'Heavy traffic.'},
+    {scene:'daily',word:'park',phonetic:'/pɑːk/',meaning:'公园',example:'Walk in the park.'},
+    {scene:'daily',word:'movie',phonetic:'/ˈmuːvi/',meaning:'电影',example:'Watch a movie.'},
+    {scene:'daily',word:'music',phonetic:'/ˈmjuːzɪk/',meaning:'音乐',example:'Listen to music.'},
+    {scene:'daily',word:'book',phonetic:'/bʊk/',meaning:'书',example:'Read a book.'},
+    {scene:'daily',word:'exercise',phonetic:'/ˈeksəsaɪz/',meaning:'锻炼',example:'Daily exercise.'}
+  ];
+
+  // 内置句型（6 场景 × 15 句 = 90 句）
+  const PRESET_SENTENCES = [
+    {scene:'social',en:'How are you doing today?',zh:'你今天怎么样?'},
+    {scene:'social',en:'It is a pleasure to meet you.',zh:'很高兴见到你。'},
+    {scene:'social',en:'Let me introduce myself. I am ...',zh:'让我自我介绍，我是...'},
+    {scene:'social',en:'What do you do for a living?',zh:'你是做什么工作的?'},
+    {scene:'social',en:'Long time no see!',zh:'好久不见!'},
+    {scene:'social',en:'Take care!',zh:'保重!'},
+    {scene:'social',en:'Have a nice day!',zh:'祝你今天愉快!'},
+    {scene:'social',en:'It was nice talking to you.',zh:'和你聊天很愉快。'},
+    {scene:'social',en:'Would you like to join us?',zh:'你愿意加入我们吗?'},
+    {scene:'social',en:'Can I have your phone number?',zh:'能告诉我你的电话吗?'},
+    {scene:'social',en:'Happy birthday!',zh:'生日快乐!'},
+    {scene:'social',en:'Congratulations on your success!',zh:'恭喜你成功!'},
+    {scene:'social',en:'I am sorry for your loss.',zh:'对于你的损失我很难过。'},
+    {scene:'social',en:'Thank you so much for your help.',zh:'非常感谢你的帮助。'},
+    {scene:'social',en:'You are welcome, anytime.',zh:'不客气，随时找我。'},
+    {scene:'shopping',en:'Excuse me, do you have this in another size?',zh:'请问这款有其他尺码吗?'},
+    {scene:'shopping',en:'How much does this cost?',zh:'这个多少钱?'},
+    {scene:'shopping',en:'Is there a discount?',zh:'有折扣吗?'},
+    {scene:'shopping',en:'Can I try it on?',zh:'我能试穿一下吗?'},
+    {scene:'shopping',en:'Do you accept credit cards?',zh:'你们接受信用卡吗?'},
+    {scene:'shopping',en:'Where is the fitting room?',zh:'试衣间在哪里?'},
+    {scene:'shopping',en:'I would like to return this.',zh:'我想退货。'},
+    {scene:'shopping',en:'Can I have a receipt, please?',zh:'请给我一张收据。'},
+    {scene:'shopping',en:'What colors are available?',zh:'有哪些颜色可选?'},
+    {scene:'shopping',en:'Is there a smaller size?',zh:'有小一号的吗?'},
+    {scene:'shopping',en:'I am just looking, thanks.',zh:'我只是看看，谢谢。'},
+    {scene:'shopping',en:'Can you wrap it as a gift?',zh:'能帮我包装成礼物吗?'},
+    {scene:'shopping',en:'How long is the warranty?',zh:'保修期多久?'},
+    {scene:'shopping',en:'Do you have any other styles?',zh:'你们有其他款式吗?'},
+    {scene:'restaurant',en:'Could I see the menu, please?',zh:'请给我看一下菜单。'},
+    {scene:'restaurant',en:'What do you recommend?',zh:'你有什么推荐?'},
+    {scene:'restaurant',en:'I am allergic to peanuts.',zh:'我对花生过敏。'},
+    {scene:'restaurant',en:'I am a vegetarian.',zh:'我是素食者。'},
+    {scene:'restaurant',en:'Could we have the bill, please?',zh:'请给我们账单。'},
+    {scene:'restaurant',en:'Is service included?',zh:'服务费包含在内吗?'},
+    {scene:'restaurant',en:'Could I have a glass of water?',zh:'能给我一杯水吗?'},
+    {scene:'restaurant',en:'How spicy is this dish?',zh:'这道菜有多辣?'},
+    {scene:'restaurant',en:'I would like my steak medium rare.',zh:'我要三分熟的牛排。'},
+    {scene:'restaurant',en:'Can I have this to go?',zh:'能打包带走吗?'},
+    {scene:'restaurant',en:'What is the soup of the day?',zh:'今日例汤是什么?'},
+    {scene:'restaurant',en:'Is there a kids menu?',zh:'有儿童菜单吗?'},
+    {scene:'restaurant',en:'Could we have more napkins?',zh:'能再给我们一些餐巾吗?'},
+    {scene:'restaurant',en:'It was delicious, thank you!',zh:'很美味，谢谢!'},
+    {scene:'restaurant',en:'Cheers!',zh:'干杯!'},
+    {scene:'travel',en:'Excuse me, where is the subway station?',zh:'请问地铁站在哪里?'},
+    {scene:'travel',en:'How do I get to the airport?',zh:'我怎么去机场?'},
+    {scene:'travel',en:'Could you call me a taxi?',zh:'能帮我叫一辆出租车吗?'},
+    {scene:'travel',en:'Is this seat taken?',zh:'这个位子有人吗?'},
+    {scene:'travel',en:'Which bus goes downtown?',zh:'哪路公交去市中心?'},
+    {scene:'travel',en:'Could you take a photo for me?',zh:'能帮我拍张照吗?'},
+    {scene:'travel',en:'Where is the nearest restroom?',zh:'最近的洗手间在哪里?'},
+    {scene:'travel',en:'I am lost, can you help me?',zh:'我迷路了，能帮我吗?'},
+    {scene:'travel',en:'How long does it take to get there?',zh:'到那里需要多久?'},
+    {scene:'travel',en:'Could you speak more slowly?',zh:'能说慢一点吗?'},
+    {scene:'travel',en:'Where can I buy a ticket?',zh:'我在哪里能买到票?'},
+    {scene:'travel',en:'What time does the train leave?',zh:'火车几点开?'},
+    {scene:'travel',en:'I have a reservation under ...',zh:'我有一个预订，名字是...'},
+    {scene:'travel',en:'Could I have the wifi password?',zh:'能告诉我wifi密码吗?'},
+    {scene:'travel',en:'Where is the check-in counter?',zh:'值机柜台在哪里?'},
+    {scene:'workplace',en:'Good morning, how can I help you?',zh:'早上好，我能帮你什么?'},
+    {scene:'workplace',en:'Let us schedule a meeting for next week.',zh:'我们下周安排个会议吧。'},
+    {scene:'workplace',en:'Could you send me the report?',zh:'能把这个报告发给我吗?'},
+    {scene:'workplace',en:'I am working on the project now.',zh:'我现在在做这个项目。'},
+    {scene:'workplace',en:'What is the deadline?',zh:'截止日期是什么时候?'},
+    {scene:'workplace',en:'I will get back to you soon.',zh:'我会尽快回复你。'},
+    {scene:'workplace',en:'Could you clarify that?',zh:'能解释一下吗?'},
+    {scene:'workplace',en:'I agree with your suggestion.',zh:'我同意你的建议。'},
+    {scene:'workplace',en:'Could we reschedule?',zh:'能重新安排时间吗?'},
+    {scene:'workplace',en:'I appreciate your feedback.',zh:'感谢你的反馈。'},
+    {scene:'workplace',en:'Let me think about it.',zh:'让我考虑一下。'},
+    {scene:'workplace',en:'I am afraid I cannot make it.',zh:'恐怕我去不了。'},
+    {scene:'workplace',en:'Thanks for letting me know.',zh:'谢谢你告诉我。'},
+    {scene:'workplace',en:'See you in the conference room.',zh:'会议室见。'},
+    {scene:'workplace',en:'Please feel free to contact me.',zh:'请随时联系我。'},
+    {scene:'daily',en:'What time is it now?',zh:'现在几点了?'},
+    {scene:'daily',en:'It is time to get up.',zh:'该起床了。'},
+    {scene:'daily',en:'I am running late.',zh:'我要迟到了。'},
+    {scene:'daily',en:'Have you had breakfast yet?',zh:'你吃早饭了吗?'},
+    {scene:'daily',en:'I am going to take a shower.',zh:'我去洗个澡。'},
+    {scene:'daily',en:'Could you turn off the lights?',zh:'能关一下灯吗?'},
+    {scene:'daily',en:'I am going to bed now.',zh:'我去睡觉了。'},
+    {scene:'daily',en:'Sweet dreams!',zh:'好梦!'},
+    {scene:'daily',en:'Did you have a good day?',zh:'今天过得怎么样?'},
+    {scene:'daily',en:'I feel tired today.',zh:'我今天很累。'},
+    {scene:'daily',en:'Let us order takeout for dinner.',zh:'我们点外卖当晚饭吧。'},
+    {scene:'daily',en:'What do you want to watch tonight?',zh:'今晚你想看什么?'},
+    {scene:'daily',en:'I need to do some laundry.',zh:'我需要洗点衣服。'},
+    {scene:'daily',en:'Could you pick up some groceries?',zh:'能买点杂货吗?'},
+    {scene:'daily',en:'See you tomorrow!',zh:'明天见!'}
+  ];
+
+  // 内置语法卡片（20 个）
+  const PRESET_GRAMMAR = [
+    {id:'g1',title:'一般现在时',explain:'表示习惯或事实。I work every day.',example:'She drinks coffee every morning.'},
+    {id:'g2',title:'一般过去时',explain:'过去发生的动作。I went to school yesterday.',example:'They visited Paris last summer.'},
+    {id:'g3',title:'现在进行时',explain:'正在进行的动作。be + 动词ing',example:'I am reading a book now.'},
+    {id:'g4',title:'现在完成时',explain:'过去发生对现在有影响。have + 过去分词',example:'I have finished my homework.'},
+    {id:'g5',title:'一般将来时',explain:'将要发生的动作。will + 动词原形',example:'I will call you tomorrow.'},
+    {id:'g6',title:'be 动词',explain:'am/is/are 表状态或身份。',example:'She is a teacher.'},
+    {id:'g7',title:'there be 句型',explain:'某地有某物。There is a book on the desk.',example:'There are many people here.'},
+    {id:'g8',title:'情态动词 can',explain:'表能力或允许。can + 动词原形',example:'I can swim very well.'},
+    {id:'g9',title:'情态动词 would',explain:'表意愿或委婉请求。',example:'Would you like some tea?'},
+    {id:'g10',title:'比较级',explain:'-er / more ... than',example:'She is taller than me.'},
+    {id:'g11',title:'最高级',explain:'-est / the most ...',example:'He is the tallest in class.'},
+    {id:'g12',title:'可数与不可数名词',explain:'可数有复数，不可数没有。',example:'water(不可数) / apple(可数)'},
+    {id:'g13',title:'冠词 a/an/the',explain:'a/an 表泛指，the 表特指。',example:'a book / the book on the desk'},
+    {id:'g14',title:'介词 in/on/at',explain:'in(大地点) on(表面) at(点)',example:'in China / on the table / at 5 pm'},
+    {id:'g15',title:'连词 and/but/or',explain:'连接词与句子。',example:'I like tea and coffee.'},
+    {id:'g16',title:'宾语从句',explain:'动词后的完整句子。',example:'I think (that) he is right.'},
+    {id:'g17',title:'定语从句',explain:'-ing / -ed / that 引导。',example:'The man who is wearing glasses is my dad.'},
+    {id:'g18',title:'被动语态',explain:'be + 过去分词',example:'The cake was made by my mom.'},
+    {id:'g19',title:'if 条件句',explain:'if 引导真实条件句。',example:'If it rains, I will stay home.'},
+    {id:'g20',title:'疑问句语序',explain:'一般疑问: be/助动词提前',example:'Do you like coffee?'}
+  ];
+
+  // 口语场景对话模板（用于 AI 模拟）
+  const PRESET_SPEAK_SCENES = {
+    cafe: {
+      name: '咖啡店点单',
+      bot: (input) => {
+        const t = input.toLowerCase();
+        if (t.includes('hello') || t.includes('hi')) return 'Welcome! What can I get for you today?';
+        if (t.includes('coffee') || t.includes('latte') || t.includes('cappuccino')) return 'Great choice! For here or to go?';
+        if (t.includes('here')) return 'Perfect. Hot or iced?';
+        if (t.includes('hot')) return 'Alright! Anything else, perhaps a pastry?';
+        if (t.includes('no') || t.includes('thanks') || t.includes('thank')) return 'Your total is 4.50. Have a wonderful day!';
+        if (t.includes('price') || t.includes('how much')) return 'It is 4.50 dollars.';
+        return 'Sorry, could you say that again?';
+      }
+    },
+    shopping: {
+      name: '购物问价',
+      bot: (input) => {
+        const t = input.toLowerCase();
+        if (t.includes('hello') || t.includes('hi')) return 'Hi! Looking for anything special?';
+        if (t.includes('size')) return 'What size do you need?';
+        if (t.includes('price') || t.includes('how much')) return 'It is on sale for 25 dollars today.';
+        if (t.includes('try')) return 'Sure! The fitting room is over there.';
+        if (t.includes('discount')) return 'Yes, today everything is 20 percent off.';
+        if (t.includes('thanks') || t.includes('thank')) return 'You are welcome! Come again!';
+        return 'Would you like to try it on?';
+      }
+    },
+    travel: {
+      name: '问路问讯',
+      bot: (input) => {
+        const t = input.toLowerCase();
+        if (t.includes('where') && t.includes('subway')) return 'Go straight for two blocks, then turn left.';
+        if (t.includes('how') && t.includes('far')) return 'About ten minutes on foot.';
+        if (t.includes('thanks') || t.includes('thank')) return 'You are welcome!';
+        if (t.includes('airport')) return 'Take bus number 7, it goes directly.';
+        if (t.includes('left') || t.includes('right')) return 'Yes, keep walking that way.';
+        return 'I am sorry, could you repeat that?';
+      }
+    }
+  };
+
+  const defaultData = {
+    tasks: [],
+    records: [],
+    learns: [],
+    sports: [],
+    medical: {
+      base: { height:'', weight:'', bp:'', hr:'', allergy:'' },
+      visits: [],
+      meds: [],
+      reports: []
+    },
+    memos: [],
+    meta: { createdAt: todayKey() },
+    english: {
+      vocab: { items: [] },       // 自定义词条；预置词作为常量展示
+      sentences: { items: [] },
+      speaking: { logs: [] },
+      listening: { logs: [] },
+      grammar: { learned: [] },
+      dailyLogs: {},              // { 'YYYY-MM-DD': { word, sent, speak, listen, gram, totalMin } }
+      recordings: {},             // 元数据；blob 存 IndexedDB
+      settings: { wordMin:15, sentMin:15, speakMin:15, listenMin:10, gramMin:5 },
+      scenes: ['social', 'shopping', 'restaurant', 'travel', 'workplace', 'daily']
+    }
+  };
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return JSON.parse(JSON.stringify(defaultData));
+      const parsed = JSON.parse(raw);
+      // 合并默认值，防止新版本字段缺失
+      return {
+        ...defaultData,
+        ...parsed,
+        medical: { ...defaultData.medical, ...(parsed.medical || {}) }
+      };
+    } catch (e) {
+      console.error('数据加载失败', e);
+      return JSON.parse(JSON.stringify(defaultData));
+    }
+  }
+  function saveData() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    } catch (e) {
+      toast('数据保存失败');
+    }
+  }
+
+  let state = loadData();
+
+  /* ========== 视图切换 ========== */
+  const sidebar = $('#sidebar');
+  const overlay = $('#overlay');
+  $('#menuToggle').addEventListener('click', () => {
+    sidebar.classList.add('open');
+    overlay.classList.add('show');
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+  $$('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.dataset.view;
+      switchView(v);
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    });
+  });
+  $$('.chip[data-jump]').forEach(b => b.addEventListener('click', () => switchView(b.dataset.jump)));
+  $('#topSearch').addEventListener('click', () => {
+    switchView('memo');
+    setTimeout(() => $('#memoSearch').focus(), 200);
+  });
+
+  function switchView(name) {
+    $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === name));
+    $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+    // 滚动到顶部
+    $('.main').scrollTop = 0;
+    if (name === 'overview') renderOverview();
+    if (name === 'plan') renderTasks();
+    if (name === 'finance') renderFinance();
+    if (name === 'study') { renderStudy(); renderSport(); }
+    if (name === 'medical') renderMedical();
+    if (name === 'memo') renderMemos();
+    if (name === 'douyin') renderDouyin();
+    if (name === 'english') renderEnglish();
+  }
+
+  /* ========== 总览 ========== */
+  function renderOverview() {
+    const now = new Date();
+    const weekday = dayOfWeek(now);
+    const date = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 · 星期${weekday}`;
+    $('#todayText').textContent = date;
+
+    const tk = todayKey();
+    const todays = state.tasks.filter(t => t.date === tk && t.status !== 'done');
+    const todaysDone = state.tasks.filter(t => t.date === tk && t.status === 'done');
+    const todayExpense = state.records
+      .filter(r => r.date === tk && r.type === 'expense')
+      .reduce((s, r) => s + Number(r.amount), 0);
+    const todayLearn = state.learns
+      .filter(l => l.date === tk)
+      .reduce((s, l) => s + Number(l.minutes || 0), 0)
+      + state.sports
+          .filter(s => s.date === tk)
+          .reduce((s, x) => s + Number(x.minutes || 0), 0);
+    const memoCount = state.memos.length;
+
+    $('#stat-tasks').textContent = todays.length;
+    $('#stat-expense').textContent = '¥' + todayExpense.toFixed(2);
+    $('#stat-study').textContent = todayLearn + ' 分钟';
+    $('#stat-memo').textContent = memoCount;
+
+    // 活动流
+    const events = [];
+    todaysDone.forEach(t => events.push({ type:'task', text:`完成了任务「${t.title}」`, time:t.doneAt }));
+    state.records.filter(r=>r.date===tk).forEach(r => events.push({ type:r.type, text:`${r.type==='expense'?'支出':'收入'} ¥${Number(r.amount).toFixed(2)} · ${r.category}`, time:r.createdAt }));
+    state.learns.filter(l=>l.date===tk).forEach(l => events.push({ type:'learn', text:`学习「${l.subject || '自由学习'}」${l.minutes}分钟`, time:l.createdAt }));
+    state.sports.filter(s=>s.date===tk).forEach(s => events.push({ type:'sport', text:`锻炼「${s.type}」${s.minutes}分钟`, time:s.createdAt }));
+    state.memos.slice(0,5).forEach(m => events.push({ type:'memo', text:`写了备忘录「${m.title || '无标题'}」`, time:m.createdAt }));
+
+    events.sort((a,b) => (b.time||'').localeCompare(a.time||''));
+    const box = $('#overview-activity');
+    if (events.length === 0) {
+      box.innerHTML = '<div class="empty">还没有任何活动，开始记录吧 ✨</div>';
+    } else {
+      box.innerHTML = events.slice(0, 10).map(e => {
+        const t = e.time ? new Date(e.time).toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' }) : '';
+        const color = e.type==='income' ? 'var(--success)' : e.type==='expense' ? 'var(--danger)' : e.type==='task' ? 'var(--c1)' : e.type==='learn' ? 'var(--c3)' : e.type==='sport' ? 'var(--c2)' : 'var(--c4)';
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-soft)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="width:8px;height:8px;border-radius:50%;background:${color}"></span>
+            <span style="font-size:13px">${escapeHtml(e.text)}</span>
+          </div>
+          <span class="muted" style="font-size:12px">${t}</span>
+        </div>`;
+      }).join('');
+    }
+
+    // 今日穿搭灵感
+    const dyCache = getDouyinCache();
+    const dyData = dyCache[todayKey()];
+    const dyPanel = $('#ov-dy-panel');
+    if (dyData && dyData.videos && dyData.videos.length > 0) {
+      const colorMap = { 'cc_如': 'cc', '于佳含': 'yu', '陈鱼油': 'chen' };
+      $('#ov-dy-list').innerHTML = dyData.videos.slice(0, 3).map((v, i) => {
+        const playUrl = v.playUrl || (v.videoId ? `https://www.douyin.com/video/${v.videoId}` : '#');
+        return `<a class="ov-dy-item" href="${escapeHtml(playUrl)}" target="_blank" rel="noopener">
+          <div class="ov-dy-rank">${i+1}</div>
+          <div class="ov-dy-body">
+            <div class="ov-dy-title">${escapeHtml(v.title)}</div>
+            <div class="ov-dy-author">@${escapeHtml(v.author)} · ${escapeHtml(v.authorStyle || '')}</div>
+          </div>
+        </a>`;
+      }).join('');
+      dyPanel.style.display = 'block';
+    } else {
+      dyPanel.style.display = 'none';
+    }
+  }
+
+  /* ========== 每日工作计划 ========== */
+  let planFilter = 'all';
+
+  function renderTasks() {
+    const sel = $('#planDate').value;
+    const today = new Date();
+    let list = [];
+    if (sel === 'today') {
+      const k = todayKey(today);
+      list = state.tasks.filter(t => t.date === k);
+    } else if (sel === 'tomorrow') {
+      const t = new Date(today); t.setDate(t.getDate()+1);
+      list = state.tasks.filter(x => x.date === todayKey(t));
+    } else {
+      // 本周
+      const start = new Date(today); start.setDate(today.getDate() - today.getDay());
+      const end = new Date(start); end.setDate(start.getDate() + 6);
+      list = state.tasks.filter(x => {
+        const d = new Date(x.date);
+        return d >= start && d <= end;
+      });
+    }
+    list = list.filter(t => planFilter === 'all' || t.status === planFilter);
+    list.sort((a, b) => {
+      const order = { todo: 0, doing: 1, done: 2 };
+      if (order[a.status] !== order[b.status]) return order[a.status] - order[b.status];
+      return (a.time || '99:99').localeCompare(b.time || '99:99');
+    });
+
+    const box = $('#taskList');
+    if (list.length === 0) {
+      box.innerHTML = '<div class="empty" style="background:var(--panel);border-radius:var(--radius);padding:40px;border:1px dashed var(--border)">📝 当前没有任务，点击右上角"新建任务"开始规划</div>';
+      return;
+    }
+    box.innerHTML = list.map(t => taskItemHtml(t)).join('');
+    bindTaskEvents();
+  }
+
+  function taskItemHtml(t) {
+    const isDone = t.status === 'done';
+    return `<div class="task-item ${isDone ? 'done' : ''}" data-id="${t.id}">
+      <div class="task-check ${isDone ? 'checked' : ''}" data-act="toggle">
+        ${isDone ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+      </div>
+      <div class="task-body">
+        <div class="task-title">${escapeHtml(t.title)}</div>
+        <div class="task-meta">
+          ${t.time ? `<span>⏰ ${t.time}</span>` : ''}
+          <span class="task-tag priority-${t.priority}">${t.priority==='high'?'高优':t.priority==='mid'?'中等':'普通'}</span>
+          <span class="task-tag status-${t.status}">${t.status==='todo'?'待办':t.status==='doing'?'进行中':'已完成'}</span>
+          ${t.tag ? `<span class="task-tag">${escapeHtml(t.tag)}</span>` : ''}
+        </div>
+        ${t.note ? `<div class="muted" style="margin-top:6px;font-size:12px">${escapeHtml(t.note)}</div>` : ''}
+      </div>
+      <div class="task-actions">
+        <button class="icon-action" data-act="edit" title="编辑">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="icon-action danger" data-act="del" title="删除">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }
+
+  function bindTaskEvents() {
+    $$('#taskList .task-item').forEach(item => {
+      const id = item.dataset.id;
+      item.querySelector('[data-act="toggle"]').addEventListener('click', () => {
+        const t = state.tasks.find(x => x.id === id);
+        if (!t) return;
+        if (t.status === 'done') { t.status = 'todo'; t.doneAt = null; }
+        else { t.status = 'done'; t.doneAt = new Date().toISOString(); }
+        saveData(); renderTasks(); renderOverview();
+        toast(t.status === 'done' ? '✓ 已完成' : '已重置');
+      });
+      const editBtn = item.querySelector('[data-act="edit"]');
+      if (editBtn) editBtn.addEventListener('click', () => openTaskModal(id));
+      item.querySelector('[data-act="del"]').addEventListener('click', () => {
+        if (confirm('确定删除这个任务吗？')) {
+          state.tasks = state.tasks.filter(x => x.id !== id);
+          saveData(); renderTasks(); renderOverview();
+          toast('已删除');
+        }
+      });
+    });
+  }
+
+  $$('.filter-bar .filter').forEach(b => b.addEventListener('click', () => {
+    $$('.filter-bar .filter').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    planFilter = b.dataset.filter;
+    renderTasks();
+  }));
+
+  $('#addTaskBtn').addEventListener('click', () => openTaskModal(null));
+
+  function openTaskModal(id) {
+    const t = id ? state.tasks.find(x => x.id === id) : null;
+    const title = t ? '编辑任务' : '新建任务';
+    const body = `
+      <div class="field">
+        <label>任务标题 *</label>
+        <input type="text" id="f-title" value="${escapeHtml(t?.title || '')}" placeholder="例如：完成项目方案" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>日期</label>
+          <input type="date" id="f-date" value="${t?.date || todayKey()}" />
+        </div>
+        <div class="field">
+          <label>时间</label>
+          <input type="time" id="f-time" value="${t?.time || ''}" />
+        </div>
+      </div>
+      <div class="field">
+        <label>优先级</label>
+        <div class="tag-options" id="f-priority">
+          <button type="button" data-val="low" class="${t?.priority==='low'?'active':''}">普通</button>
+          <button type="button" data-val="mid" class="${(!t || t?.priority==='mid')?'active':''}">中等</button>
+          <button type="button" data-val="high" class="${t?.priority==='high'?'active':''}">高优</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>状态</label>
+        <div class="tag-options" id="f-status">
+          <button type="button" data-val="todo" class="${(!t || t?.status==='todo')?'active':''}">待办</button>
+          <button type="button" data-val="doing" class="${t?.status==='doing'?'active':''}">进行中</button>
+          <button type="button" data-val="done" class="${t?.status==='done'?'active':''}">已完成</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>分类标签（可选）</label>
+        <input type="text" id="f-tag" value="${escapeHtml(t?.tag || '')}" placeholder="例如：工作 / 个人 / 学习" />
+      </div>
+      <div class="field">
+        <label>备注</label>
+        <textarea id="f-note" placeholder="补充说明...">${escapeHtml(t?.note || '')}</textarea>
+      </div>
+      <div class="form-actions">
+        <button class="ghost-btn" id="modalCancel">取消</button>
+        <button class="primary-btn" id="modalOk">${t ? '保存' : '创建'}</button>
+      </div>
+    `;
+    showModal(title, body, () => {
+      // 切换单选
+      $$('#f-priority button').forEach(b => b.addEventListener('click', () => {
+        $$('#f-priority button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      }));
+      $$('#f-status button').forEach(b => b.addEventListener('click', () => {
+        $$('#f-status button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      }));
+      $('#modalCancel').addEventListener('click', closeModal);
+      $('#modalOk').addEventListener('click', () => {
+        const titleVal = $('#f-title').value.trim();
+        if (!titleVal) { toast('请输入任务标题'); return; }
+        const priority = $('#f-priority .active').dataset.val;
+        const status = $('#f-status .active').dataset.val;
+        const obj = {
+          id: t?.id || uid(),
+          title: titleVal,
+          date: $('#f-date').value || todayKey(),
+          time: $('#f-time').value || '',
+          priority, status,
+          tag: $('#f-tag').value.trim(),
+          note: $('#f-note').value.trim(),
+          createdAt: t?.createdAt || new Date().toISOString(),
+          doneAt: status === 'done' ? (t?.doneAt || new Date().toISOString()) : null
+        };
+        if (t) {
+          const idx = state.tasks.findIndex(x => x.id === t.id);
+          state.tasks[idx] = obj;
+        } else {
+          state.tasks.push(obj);
+        }
+        saveData(); renderTasks(); renderOverview();
+        toast(t ? '已更新' : '已创建');
+        closeModal();
+      });
+    });
+  }
+
+  /* ========== 每日记账 ========== */
+  let financeSeg = 'all';
+
+  const expenseCategories = [
+    { name: '餐饮', icon: '🍜' },
+    { name: '交通', icon: '🚇' },
+    { name: '购物', icon: '🛍️' },
+    { name: '娱乐', icon: '🎮' },
+    { name: '居家', icon: '🏠' },
+    { name: '医疗', icon: '💊' },
+    { name: '学习', icon: '📚' },
+    { name: '其他', icon: '✨' }
+  ];
+  const incomeCategories = [
+    { name: '工资', icon: '💼' },
+    { name: '兼职', icon: '🤝' },
+    { name: '理财', icon: '📈' },
+    { name: '红包', icon: '🧧' },
+    { name: '其他', icon: '💰' }
+  ];
+
+  function renderFinance() {
+    const now = new Date();
+    const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    const monthRecs = state.records.filter(r => r.date.startsWith(ym));
+    const income = monthRecs.filter(r => r.type==='income').reduce((s,r)=>s+Number(r.amount), 0);
+    const expense = monthRecs.filter(r => r.type==='expense').reduce((s,r)=>s+Number(r.amount), 0);
+    $('#monthIncome').textContent = '¥' + income.toFixed(2);
+    $('#monthExpense').textContent = '¥' + expense.toFixed(2);
+    const bal = income - expense;
+    const balEl = $('#monthBalance');
+    balEl.textContent = (bal < 0 ? '-' : '') + '¥' + Math.abs(bal).toFixed(2);
+    balEl.style.color = bal >= 0 ? 'var(--success)' : 'var(--danger)';
+
+    // 近 7 天柱状图
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now); d.setDate(now.getDate() - i);
+      const k = todayKey(d);
+      const sum = state.records.filter(r => r.date === k && r.type === 'expense').reduce((s,r)=>s+Number(r.amount), 0);
+      days.push({ key: k, label: ['日','一','二','三','四','五','六'][d.getDay()], value: sum });
+    }
+    const max = Math.max(...days.map(d => d.value), 1);
+    const chart = $('#financeChart');
+    chart.innerHTML = days.map(d => `
+      <div class="bar-col">
+        <div class="bar" style="height:${(d.value / max * 100) || 4}%">
+          ${d.value > 0 ? `<span class="bar-val">¥${d.value.toFixed(0)}</span>` : ''}
+        </div>
+        <div class="bar-label">${d.label}</div>
+      </div>
+    `).join('');
+
+    // 列表
+    let list = state.records.slice().sort((a,b) => b.date.localeCompare(a.date) || (b.createdAt||'').localeCompare(a.createdAt||''));
+    if (financeSeg !== 'all') list = list.filter(r => r.type === financeSeg);
+    const box = $('#recordList');
+    if (list.length === 0) {
+      box.innerHTML = '<div class="empty">还没有账单，点击右上角记一笔 ✏️</div>';
+      return;
+    }
+    box.innerHTML = list.map(r => {
+      const cat = (r.type === 'expense' ? expenseCategories : incomeCategories).find(c => c.name === r.category) || { name: r.category, icon: '💵' };
+      return `<div class="record-item" data-id="${r.id}">
+        <div class="record-icon">${cat.icon}</div>
+        <div class="record-body">
+          <div class="record-title">${escapeHtml(r.category)}${r.note ? ' · ' + escapeHtml(r.note) : ''}</div>
+          <div class="record-meta">
+            <span>${r.date}</span>
+          </div>
+        </div>
+        <div class="record-amount ${r.type}">${r.type==='expense'?'-':'+'}¥${Number(r.amount).toFixed(2)}</div>
+        <button class="icon-action danger" data-del="${r.id}" title="删除">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </div>`;
+    }).join('');
+    $$('#recordList [data-del]').forEach(b => b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = b.dataset.del;
+      if (confirm('确定删除这笔记录吗？')) {
+        state.records = state.records.filter(r => r.id !== id);
+        saveData(); renderFinance(); renderOverview();
+        toast('已删除');
+      }
+    }));
+  }
+
+  $$('#view-finance .seg-btn').forEach(b => b.addEventListener('click', () => {
+    $$('#view-finance .seg-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    financeSeg = b.dataset.seg;
+    renderFinance();
+  }));
+
+  $('#addRecordBtn').addEventListener('click', () => openRecordModal());
+
+  function openRecordModal(id) {
+    const r = id ? state.records.find(x => x.id === id) : null;
+    const title = r ? '编辑账单' : '记一笔';
+    const body = `
+      <div class="field">
+        <label>类型</label>
+        <div class="tag-options" id="f-type">
+          <button type="button" data-val="expense" class="${(!r || r.type==='expense')?'active':''}">支出</button>
+          <button type="button" data-val="income" class="${r?.type==='income'?'active':''}">收入</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>金额 *</label>
+        <input type="number" id="f-amount" step="0.01" value="${r?.amount||''}" placeholder="0.00" />
+      </div>
+      <div class="field">
+        <label>分类</label>
+        <div class="tag-options" id="f-cat"></div>
+      </div>
+      <div class="field">
+        <label>日期</label>
+        <input type="date" id="f-date" value="${r?.date || todayKey()}" />
+      </div>
+      <div class="field">
+        <label>备注</label>
+        <textarea id="f-note" placeholder="可选">${escapeHtml(r?.note || '')}</textarea>
+      </div>
+      <div class="form-actions">
+        <button class="ghost-btn" id="modalCancel">取消</button>
+        <button class="primary-btn" id="modalOk">${r ? '保存' : '保存'}</button>
+      </div>
+    `;
+    showModal(title, body, () => {
+      let type = r?.type || 'expense';
+      let cat = r?.category || '餐饮';
+      const renderCats = () => {
+        const list = type === 'expense' ? expenseCategories : incomeCategories;
+        $('#f-cat').innerHTML = list.map(c => `<button type="button" data-val="${c.name}" class="${c.name===cat?'active':''}">${c.icon} ${c.name}</button>`).join('');
+        if (!list.find(c => c.name === cat)) cat = list[0].name;
+        $$('#f-cat button').forEach(b => b.addEventListener('click', () => {
+          cat = b.dataset.val;
+          $$('#f-cat button').forEach(x => x.classList.remove('active'));
+          b.classList.add('active');
+        }));
+      };
+      renderCats();
+      $$('#f-type button').forEach(b => b.addEventListener('click', () => {
+        $$('#f-type button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        type = b.dataset.val;
+        cat = (type === 'expense' ? expenseCategories : incomeCategories)[0].name;
+        renderCats();
+      }));
+      $('#modalCancel').addEventListener('click', closeModal);
+      $('#modalOk').addEventListener('click', () => {
+        const amount = parseFloat($('#f-amount').value);
+        if (!amount || amount <= 0) { toast('请输入有效金额'); return; }
+        const obj = {
+          id: r?.id || uid(),
+          type, amount,
+          category: cat,
+          date: $('#f-date').value || todayKey(),
+          note: $('#f-note').value.trim(),
+          createdAt: r?.createdAt || new Date().toISOString()
+        };
+        if (r) {
+          const idx = state.records.findIndex(x => x.id === r.id);
+          state.records[idx] = obj;
+        } else {
+          state.records.push(obj);
+        }
+        saveData(); renderFinance(); renderOverview();
+        toast('已保存');
+        closeModal();
+      });
+    });
+  }
+
+  /* ========== 学习锻炼 ========== */
+  let studyTab = 'learn';
+  let timer = { running: false, seconds: 25*60, total: 25*60, mode: 'learn', interval: null };
+
+  $$('#view-study .seg-btn[data-study-tab]').forEach(b => b.addEventListener('click', () => {
+    $$('#view-study .seg-btn[data-study-tab]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    studyTab = b.dataset.studyTab;
+    $$('.study-pane').forEach(p => p.classList.toggle('active', p.id === 'study-' + studyTab));
+  }));
+
+  // 番茄钟
+  function updateTimerDisplay() {
+    const m = String(Math.floor(timer.seconds / 60)).padStart(2,'0');
+    const s = String(timer.seconds % 60).padStart(2,'0');
+    $('#timerDisplay').textContent = `${m}:${s}`;
+    const pct = ((timer.total - timer.seconds) / timer.total) * 100;
+    $('#timerMeta').textContent = timer.running ? '专注中...' : (timer.seconds === timer.total ? '准备开始' : '已暂停');
+  }
+  $$('.timer-mode .seg-btn').forEach(b => b.addEventListener('click', () => {
+    if (timer.running) { toast('请先停止当前计时'); return; }
+    const min = Number(b.dataset.min);
+    timer.seconds = min * 60;
+    timer.total = min * 60;
+    timer.mode = b.dataset.mode;
+    $$('.timer-mode .seg-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    updateTimerDisplay();
+  }));
+  $('#timerStart').addEventListener('click', () => {
+    if (timer.running) return;
+    if (timer.seconds === 0) timer.seconds = timer.total;
+    timer.running = true;
+    timer.interval = setInterval(() => {
+      timer.seconds--;
+      if (timer.seconds <= 0) {
+        clearInterval(timer.interval);
+        timer.running = false;
+        // 记录学习
+        const minutes = Math.round(timer.total / 60);
+        if (timer.mode === 'learn') {
+          state.learns.push({
+            id: uid(), date: todayKey(), subject: '番茄学习',
+            minutes, createdAt: new Date().toISOString()
+          });
+          toast(`🎉 完成 ${minutes} 分钟学习！`);
+        }
+        saveData(); renderStudy();
+        timer.seconds = timer.total;
+      }
+      updateTimerDisplay();
+    }, 1000);
+    updateTimerDisplay();
+  });
+  $('#timerPause').addEventListener('click', () => {
+    if (!timer.running) return;
+    clearInterval(timer.interval);
+    timer.running = false;
+    updateTimerDisplay();
+  });
+  $('#timerReset').addEventListener('click', () => {
+    clearInterval(timer.interval);
+    timer.running = false;
+    timer.seconds = timer.total;
+    updateTimerDisplay();
+  });
+  updateTimerDisplay();
+
+  function renderStudy() {
+    const tk = todayKey();
+    const todayMin = state.learns.filter(l => l.date === tk).reduce((s,l)=>s+Number(l.minutes), 0);
+    $('#learnToday').textContent = todayMin + ' 分钟';
+    $('#learnStreak').textContent = calcStreak(state.learns.map(l => l.date)) + ' 天';
+    const total = state.learns.reduce((s,l)=>s+Number(l.minutes), 0);
+    $('#learnTotal').textContent = total + ' 分钟';
+
+    const list = state.learns.slice().sort((a,b) => b.date.localeCompare(a.date) || (b.createdAt||'').localeCompare(a.createdAt||''));
+    const box = $('#learnLog');
+    if (list.length === 0) {
+      box.innerHTML = '<div class="empty">还没有学习记录 ✏️</div>';
+    } else {
+      box.innerHTML = list.slice(0, 30).map(l => `<div class="log-item">
+        <div class="log-icon">📚</div>
+        <div class="log-body">
+          <div class="log-title">${escapeHtml(l.subject || '学习')}</div>
+          <div class="log-meta">${l.date} · ${l.minutes} 分钟${l.note ? ' · ' + escapeHtml(l.note) : ''}</div>
+        </div>
+        <button class="icon-action danger" data-del-learn="${l.id}">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </div>`).join('');
+      $$('[data-del-learn]').forEach(b => b.addEventListener('click', () => {
+        if (!confirm('确定删除？')) return;
+        state.learns = state.learns.filter(x => x.id !== b.dataset.delLearn);
+        saveData(); renderStudy(); renderOverview();
+        toast('已删除');
+      }));
+    }
+  }
+
+  $('#addLearnLog').addEventListener('click', () => openLearnModal());
+
+  function openLearnModal(id) {
+    const l = id ? state.learns.find(x => x.id === id) : null;
+    showModal(l ? '编辑学习记录' : '新增学习记录', `
+      <div class="field">
+        <label>学习内容 *</label>
+        <input type="text" id="f-subject" value="${escapeHtml(l?.subject || '')}" placeholder="例如：英语阅读" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>时长（分钟）*</label>
+          <input type="number" id="f-min" value="${l?.minutes || ''}" placeholder="30" />
+        </div>
+        <div class="field">
+          <label>日期</label>
+          <input type="date" id="f-date" value="${l?.date || todayKey()}" />
+        </div>
+      </div>
+      <div class="field">
+        <label>备注</label>
+        <textarea id="f-note">${escapeHtml(l?.note || '')}</textarea>
+      </div>
+      <div class="form-actions">
+        <button class="ghost-btn" id="modalCancel">取消</button>
+        <button class="primary-btn" id="modalOk">保存</button>
+      </div>
+    `, () => {
+      $('#modalCancel').addEventListener('click', closeModal);
+      $('#modalOk').addEventListener('click', () => {
+        const subject = $('#f-subject').value.trim();
+        const minutes = parseInt($('#f-min').value);
+        if (!subject || !minutes) { toast('请填写完整'); return; }
+        const obj = {
+          id: l?.id || uid(),
+          subject, minutes,
+          date: $('#f-date').value || todayKey(),
+          note: $('#f-note').value.trim(),
+          createdAt: l?.createdAt || new Date().toISOString()
+        };
+        if (l) {
+          const idx = state.learns.findIndex(x => x.id === l.id);
+          state.learns[idx] = obj;
+        } else state.learns.push(obj);
+        saveData(); renderStudy(); renderOverview();
+        toast('已保存'); closeModal();
+      });
+    });
+  }
+
+  function calcStreak(dates) {
+    if (!dates.length) return 0;
+    const set = new Set(dates);
+    let streak = 0;
+    const d = new Date();
+    while (set.has(todayKey(d))) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    }
+    return streak;
+  }
+
+  function renderSport() {
+    const now = new Date();
+    // 本周
+    const start = new Date(now); start.setDate(now.getDate() - now.getDay());
+    const weekRecs = state.sports.filter(s => new Date(s.date) >= start);
+    $('#sportWeek').textContent = weekRecs.length + ' 次';
+    const total = state.sports.reduce((s,x)=>s+Number(x.minutes), 0);
+    $('#sportTotal').textContent = total + ' 分钟';
+    const cal = state.sports.reduce((s,x)=>s+Number(x.calories || 0), 0);
+    $('#sportCal').textContent = cal + ' kcal';
+
+    // 本周打卡
+    const days = ['日','一','二','三','四','五','六'];
+    const week = $('#weekCheck');
+    const today = new Date();
+    const startD = new Date(today); startD.setDate(today.getDate() - today.getDay());
+    week.innerHTML = Array.from({length:7}, (_, i) => {
+      const d = new Date(startD); d.setDate(startD.getDate() + i);
+      const k = todayKey(d);
+      const checked = state.sports.some(s => s.date === k);
+      const isToday = k === todayKey();
+      return `<div class="week-day ${checked ? 'checked' : ''} ${isToday ? 'today' : ''}">
+        <div class="week-day-name">${days[i]}</div>
+        <div class="week-day-num">${d.getDate()}</div>
+      </div>`;
+    }).join('');
+
+    // 记录
+    const list = state.sports.slice().sort((a,b) => b.date.localeCompare(a.date) || (b.createdAt||'').localeCompare(a.createdAt||''));
+    const box = $('#sportLog');
+    if (list.length === 0) {
+      box.innerHTML = '<div class="empty">还没有锻炼记录 💪</div>';
+    } else {
+      box.innerHTML = list.slice(0, 30).map(s => `<div class="log-item">
+        <div class="log-icon">🏃</div>
+        <div class="log-body">
+          <div class="log-title">${escapeHtml(s.type)}</div>
+          <div class="log-meta">${s.date} · ${s.minutes} 分钟${s.calories ? ' · ' + s.calories + ' kcal' : ''}${s.note ? ' · ' + escapeHtml(s.note) : ''}</div>
+        </div>
+        <button class="icon-action danger" data-del-sport="${s.id}">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </div>`).join('');
+      $$('[data-del-sport]').forEach(b => b.addEventListener('click', () => {
+        if (!confirm('确定删除？')) return;
+        state.sports = state.sports.filter(x => x.id !== b.dataset.delSport);
+        saveData(); renderSport(); renderOverview();
+        toast('已删除');
+      }));
+    }
+  }
+
+  $('#addSportLog').addEventListener('click', () => openSportModal());
+
+  function openSportModal(id) {
+    const s = id ? state.sports.find(x => x.id === id) : null;
+    showModal(s ? '编辑锻炼记录' : '新增锻炼', `
+      <div class="field">
+        <label>运动类型 *</label>
+        <input type="text" id="f-type" value="${escapeHtml(s?.type || '')}" placeholder="例如：跑步、瑜伽、力量训练" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>时长（分钟）*</label>
+          <input type="number" id="f-min" value="${s?.minutes || ''}" placeholder="30" />
+        </div>
+        <div class="field">
+          <label>消耗（kcal）</label>
+          <input type="number" id="f-cal" value="${s?.calories || ''}" placeholder="可选" />
+        </div>
+      </div>
+      <div class="field">
+        <label>日期</label>
+        <input type="date" id="f-date" value="${s?.date || todayKey()}" />
+      </div>
+      <div class="field">
+        <label>备注</label>
+        <textarea id="f-note">${escapeHtml(s?.note || '')}</textarea>
+      </div>
+      <div class="form-actions">
+        <button class="ghost-btn" id="modalCancel">取消</button>
+        <button class="primary-btn" id="modalOk">保存</button>
+      </div>
+    `, () => {
+      $('#modalCancel').addEventListener('click', closeModal);
+      $('#modalOk').addEventListener('click', () => {
+        const type = $('#f-type').value.trim();
+        const minutes = parseInt($('#f-min').value);
+        if (!type || !minutes) { toast('请填写完整'); return; }
+        const obj = {
+          id: s?.id || uid(),
+          type, minutes,
+          calories: parseInt($('#f-cal').value) || 0,
+          date: $('#f-date').value || todayKey(),
+          note: $('#f-note').value.trim(),
+          createdAt: s?.createdAt || new Date().toISOString()
+        };
+        if (s) {
+          const idx = state.sports.findIndex(x => x.id === s.id);
+          state.sports[idx] = obj;
+        } else state.sports.push(obj);
+        saveData(); renderSport(); renderOverview();
+        toast('已保存'); closeModal();
+      });
+    });
+  }
+
+  /* ========== 医疗 ========== */
+  let medTab = 'visit';
+
+  $$('#view-medical .med-tabs .seg-btn').forEach(b => b.addEventListener('click', () => {
+    $$('#view-medical .med-tabs .seg-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    medTab = b.dataset.medTab;
+    $$('.med-pane').forEach(p => p.classList.toggle('active', p.id === 'med-' + medTab));
+  }));
+
+  function renderMedical() {
+    const b = state.medical.base;
+    $('#medHeight').value = b.height || '';
+    $('#medWeight').value = b.weight || '';
+    $('#medBp').value = b.bp || '';
+    $('#medHr').value = b.hr || '';
+    $('#medAllergy').value = b.allergy || '';
+    calcBMI();
+
+    renderMedList('visitList', state.medical.visits, 'visit', '🏥');
+    renderMedList('medList', state.medical.meds, 'med', '💊');
+    renderMedList('reportList', state.medical.reports, 'report', '📋');
+  }
+
+  function renderMedList(elId, list, type, icon) {
+    const el = $('#' + elId);
+    if (!list || list.length === 0) {
+      el.innerHTML = `<div class="empty">还没有${type==='visit'?'就诊':type==='med'?'用药':'检查'}记录</div>`;
+      return;
+    }
+    el.innerHTML = list.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(item => `<div class="log-item">
+      <div class="log-icon">${icon}</div>
+      <div class="log-body">
+        <div class="log-title">${escapeHtml(item.title)}</div>
+        <div class="log-meta">${item.date}${item.doctor ? ' · ' + escapeHtml(item.doctor) : ''}${item.dosage ? ' · ' + escapeHtml(item.dosage) : ''}${item.hospital ? ' · ' + escapeHtml(item.hospital) : ''}</div>
+        ${item.note ? `<div class="muted" style="font-size:12px;margin-top:4px">${escapeHtml(item.note)}</div>` : ''}
+      </div>
+      <button class="icon-action danger" data-del-med="${type}-${item.id}">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </button>
+    </div>`).join('');
+    $$('#' + elId + ' [data-del-med]').forEach(b => b.addEventListener('click', () => {
+      const [t, id] = b.dataset.delMed.split('-');
+      if (!confirm('确定删除？')) return;
+      const key = t === 'visit' ? 'visits' : t === 'med' ? 'meds' : 'reports';
+      state.medical[key] = state.medical[key].filter(x => x.id !== id);
+      saveData(); renderMedical(); toast('已删除');
+    }));
+  }
+
+  function calcBMI() {
+    const h = parseFloat($('#medHeight').value);
+    const w = parseFloat($('#medWeight').value);
+    const display = $('#bmiDisplay');
+    const tip = $('#bmiTip');
+    if (!h || !w || h <= 0) { display.textContent = '--'; tip.textContent = '填写身高体重后自动计算'; tip.style.color = 'var(--text-mute)'; return; }
+    const bmi = w / Math.pow(h/100, 2);
+    display.textContent = bmi.toFixed(1);
+    let label = '', color = '';
+    if (bmi < 18.5) { label = '偏瘦'; color = '#60a5fa'; }
+    else if (bmi < 24) { label = '正常'; color = 'var(--success)'; }
+    else if (bmi < 28) { label = '超重'; color = 'var(--warning)'; }
+    else { label = '肥胖'; color = 'var(--danger)'; }
+    tip.innerHTML = `状态：<strong style="color:${color}">${label}</strong> · 正常范围 18.5 ~ 24`;
+  }
+  ['medHeight','medWeight'].forEach(id => $('#'+id).addEventListener('input', calcBMI));
+
+  $('#saveMedBase').addEventListener('click', () => {
+    state.medical.base = {
+      height: $('#medHeight').value,
+      weight: $('#medWeight').value,
+      bp: $('#medBp').value,
+      hr: $('#medHr').value,
+      allergy: $('#medAllergy').value
+    };
+    saveData();
+    toast('基础信息已保存');
+  });
+
+  $('#addMedBtn').addEventListener('click', () => {
+    const tabs = ['visit','med','report'];
+    const labels = { visit:'就诊', med:'用药', report:'检查报告' };
+    showModal('新增医疗记录', `
+      <div class="field">
+        <label>类型</label>
+        <div class="tag-options" id="f-mtype">
+          ${tabs.map(t => `<button type="button" data-val="${t}" class="${t===medTab?'active':''}">${labels[t]}</button>`).join('')}
+        </div>
+      </div>
+      <div id="f-mfields"></div>
+      <div class="form-actions">
+        <button class="ghost-btn" id="modalCancel">取消</button>
+        <button class="primary-btn" id="modalOk">保存</button>
+      </div>
+    `, () => {
+      let cur = medTab;
+      const renderFields = () => {
+        const k = cur;
+        const fields = {
+          visit: `<div class="field"><label>医院</label><input type="text" id="f-hospital" placeholder="例如：协和医院" /></div>
+                 <div class="field"><label>科室 / 医生</label><input type="text" id="f-doctor" placeholder="例如：内科 张医生" /></div>
+                 <div class="field"><label>主诉 / 诊断</label><input type="text" id="f-title" placeholder="例如：感冒发烧" /></div>
+                 <div class="field"><label>日期</label><input type="date" id="f-date" value="${todayKey()}" /></div>
+                 <div class="field"><label>备注</label><textarea id="f-note" placeholder="医嘱、复诊时间..."></textarea></div>`,
+          med: `<div class="field"><label>药品名称</label><input type="text" id="f-title" placeholder="例如：阿莫西林" /></div>
+                <div class="field"><label>用法用量</label><input type="text" id="f-dosage" placeholder="例如：一天三次 每次一片" /></div>
+                <div class="field"><label>开始日期</label><input type="date" id="f-date" value="${todayKey()}" /></div>
+                <div class="field"><label>备注</label><textarea id="f-note" placeholder="服用注意事项..."></textarea></div>`,
+          report: `<div class="field"><label>检查项目</label><input type="text" id="f-title" placeholder="例如：血常规" /></div>
+                   <div class="field"><label>医院</label><input type="text" id="f-hospital" /></div>
+                   <div class="field"><label>医生</label><input type="text" id="f-doctor" /></div>
+                   <div class="field"><label>检查日期</label><input type="date" id="f-date" value="${todayKey()}" /></div>
+                   <div class="field"><label>结果 / 备注</label><textarea id="f-note"></textarea></div>`
+        };
+        $('#f-mfields').innerHTML = fields[k];
+      };
+      renderFields();
+      $$('#f-mtype button').forEach(b => b.addEventListener('click', () => {
+        $$('#f-mtype button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        cur = b.dataset.val;
+        renderFields();
+      }));
+      $('#modalCancel').addEventListener('click', closeModal);
+      $('#modalOk').addEventListener('click', () => {
+        const title = $('#f-title').value.trim();
+        if (!title) { toast('请输入名称'); return; }
+        const key = cur === 'visit' ? 'visits' : cur === 'med' ? 'meds' : 'reports';
+        const obj = {
+          id: uid(),
+          title,
+          date: $('#f-date').value || todayKey(),
+          hospital: $('#f-hospital')?.value.trim() || '',
+          doctor: $('#f-doctor')?.value.trim() || '',
+          dosage: $('#f-dosage')?.value.trim() || '',
+          note: $('#f-note')?.value.trim() || '',
+          createdAt: new Date().toISOString()
+        };
+        state.medical[key].push(obj);
+        saveData(); renderMedical(); toast('已保存'); closeModal();
+      });
+    });
+  });
+
+  /* ========== 备忘录 ========== */
+  let memoColor = 'all';
+  let memoSearch = '';
+
+  function renderMemos() {
+    let list = state.memos.slice().sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0) || (b.updatedAt||b.createdAt).localeCompare(a.updatedAt||a.createdAt));
+    if (memoColor !== 'all') list = list.filter(m => m.color === memoColor);
+    if (memoSearch) {
+      const q = memoSearch.toLowerCase();
+      list = list.filter(m => (m.title||'').toLowerCase().includes(q) || (m.content||'').toLowerCase().includes(q));
+    }
+    const box = $('#memoGrid');
+    if (list.length === 0) {
+      box.innerHTML = '<div class="empty" style="grid-column:1/-1;background:var(--panel);border-radius:var(--radius);padding:40px;border:1px dashed var(--border)">📝 还没有备忘录，记录你的灵感</div>';
+      return;
+    }
+    box.innerHTML = list.map(m => {
+      const bg = m.color || '#fef3c7';
+      const dateStr = m.updatedAt ? new Date(m.updatedAt).toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+      return `<div class="memo-card" style="background:${bg}" data-id="${m.id}">
+        ${m.pinned ? '<div style="position:absolute;top:10px;right:10px;font-size:14px">📌</div>' : ''}
+        <div class="memo-title">${escapeHtml(m.title || '无标题')}</div>
+        <div class="memo-content">${escapeHtml(m.content || '')}</div>
+        <div class="memo-meta">
+          <span>${dateStr}</span>
+          <div class="memo-actions">
+            <button class="icon-action" data-act="pin" title="${m.pinned?'取消置顶':'置顶'}">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-1.5V9a3 3 0 0 0-3-3h-5a3 3 0 0 0-3 3v6.5L5 17z"/></svg>
+            </button>
+            <button class="icon-action" data-act="edit" title="编辑">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="icon-action danger" data-act="del" title="删除">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    $$('#memoGrid .memo-card').forEach(card => {
+      const id = card.dataset.id;
+      card.querySelector('[data-act="edit"]')?.addEventListener('click', (e) => { e.stopPropagation(); openMemoModal(id); });
+      card.querySelector('[data-act="del"]')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm('确定删除该备忘录？')) {
+          state.memos = state.memos.filter(x => x.id !== id);
+          saveData(); renderMemos(); renderOverview();
+          toast('已删除');
+        }
+      });
+      card.querySelector('[data-act="pin"]')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const m = state.memos.find(x => x.id === id);
+        m.pinned = !m.pinned;
+        m.updatedAt = new Date().toISOString();
+        saveData(); renderMemos();
+      });
+    });
+  }
+
+  $('#memoSearch').addEventListener('input', (e) => {
+    memoSearch = e.target.value;
+    renderMemos();
+  });
+  $$('#colorFilter .color-dot').forEach(b => b.addEventListener('click', () => {
+    $$('#colorFilter .color-dot').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    memoColor = b.dataset.color;
+    renderMemos();
+  }));
+
+  $('#addMemoBtn').addEventListener('click', () => openMemoModal(null));
+
+  function openMemoModal(id) {
+    const m = id ? state.memos.find(x => x.id === id) : null;
+    const colors = ['#fde68a','#bbf7d0','#bae6fd','#fbcfe8','#ddd6fe','#fef3c7'];
+    let curColor = m?.color || colors[0];
+    showModal(m ? '编辑备忘录' : '新建备忘录', `
+      <div class="field">
+        <label>标题</label>
+        <input type="text" id="f-title" value="${escapeHtml(m?.title || '')}" placeholder="给这条备忘录起个名字" />
+      </div>
+      <div class="field">
+        <label>内容</label>
+        <textarea id="f-content" style="min-height:160px" placeholder="写点什么...">${escapeHtml(m?.content || '')}</textarea>
+      </div>
+      <div class="field">
+        <label>颜色</label>
+        <div class="color-pick" id="f-color">
+          ${colors.map(c => `<button data-val="${c}" style="background:${c}" class="${c===curColor?'active':''}"></button>`).join('')}
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="ghost-btn" id="modalCancel">取消</button>
+        <button class="primary-btn" id="modalOk">${m ? '保存' : '创建'}</button>
+      </div>
+    `, () => {
+      $$('#f-color button').forEach(b => b.addEventListener('click', () => {
+        $$('#f-color button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        curColor = b.dataset.val;
+      }));
+      $('#modalCancel').addEventListener('click', closeModal);
+      $('#modalOk').addEventListener('click', () => {
+        const title = $('#f-title').value.trim();
+        const content = $('#f-content').value.trim();
+        if (!title && !content) { toast('请输入内容'); return; }
+        if (m) {
+          m.title = title;
+          m.content = content;
+          m.color = curColor;
+          m.updatedAt = new Date().toISOString();
+        } else {
+          state.memos.push({
+            id: uid(),
+            title, content,
+            color: curColor,
+            pinned: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          });
+        }
+        saveData(); renderMemos(); renderOverview();
+        toast(m ? '已保存' : '已创建');
+        closeModal();
+      });
+    });
+  }
+
+  /* ========== 每日英语学习 ========== */
+  // 艾宾浩斯工具
+  function calcNextReviewDate(learnedDate, reviewStep) {
+    if (reviewStep >= REVIEW_INTERVALS.length) return null;
+    const d = new Date(learnedDate);
+    d.setDate(d.getDate() + REVIEW_INTERVALS[reviewStep]);
+    return todayKey(d);
+  }
+  function isDue(item) {
+    if (!item.nextReview || item.mastered) return false;
+    return item.nextReview <= todayKey();
+  }
+
+  // 合并预置词 + 自定义词
+  function getMergedVocab() {
+    const custom = state.english.vocab.items || [];
+    return [
+      ...PRESET_VOCAB.map(v => ({ ...v, id: 'p-' + v.scene + '-' + v.word, isPreset: true, learnedDate: null, reviewStep: 0, nextReview: null, mastered: false })),
+      ...custom
+    ];
+  }
+  function getMergedSentences() {
+    const custom = state.english.sentences.items || [];
+    return [
+      ...PRESET_SENTENCES.map((s, i) => ({ ...s, id: 'ps-' + s.scene + '-' + i, isPreset: true, reviewStep: 0, nextReview: null, mastered: false })),
+      ...custom
+    ];
+  }
+
+  // TTS 朗读
+  let currentUtterance = null;
+  function speak(text, lang = 'en-US', rate = 0.9) {
+    if (!('speechSynthesis' in window)) return false;
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      u.rate = rate;
+      u.pitch = 1;
+      currentUtterance = u;
+      window.speechSynthesis.speak(u);
+      return true;
+    } catch (e) { return false; }
+  }
+  function stopSpeak() {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  }
+
+  // 录音
+  async function recordAudio(maxMs = 8000) {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error('UNSUPPORTED');
+    }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const recorder = new MediaRecorder(stream);
+    const chunks = [];
+    recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    const stopped = new Promise(res => recorder.onstop = res);
+    recorder.start();
+    await new Promise(r => setTimeout(r, maxMs));
+    recorder.stop();
+    await stopped;
+    stream.getTracks().forEach(t => t.stop());
+    const blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
+    return blob;
+  }
+
+  // 语音识别
+  function recognizeSpeech() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return Promise.reject(new Error('UNSUPPORTED'));
+    return new Promise((resolve, reject) => {
+      const r = new SR();
+      r.lang = 'en-US';
+      r.interimResults = false;
+      r.maxAlternatives = 3;
+      r.onresult = (e) => {
+        const results = [];
+        for (let i = 0; i < e.results[0].length; i++) {
+          results.push(e.results[0][i].transcript);
+        }
+        resolve(results);
+      };
+      r.onerror = (e) => reject(e);
+      r.start();
+    });
+  }
+
+  // 简易评分：用户录音文字 vs 目标文本
+  function scoreText(target, recognized) {
+    if (!target || !recognized || recognized.length === 0) return 0;
+    const norm = (s) => s.toLowerCase().replace(/[^\w\s]/g, '').trim();
+    const tgt = norm(target).split(/\s+/);
+    const best = recognized.map(r => norm(r)).map(r => r.split(/\s+/));
+    let bestScore = 0;
+    best.forEach(words => {
+      let match = 0;
+      const used = new Set();
+      tgt.forEach(t => {
+        for (let i = 0; i < words.length; i++) {
+          if (!used.has(i) && (words[i] === t || words[i].includes(t) || t.includes(words[i]))) {
+            match++;
+            used.add(i);
+            break;
+          }
+        }
+      });
+      bestScore = Math.max(bestScore, match / tgt.length);
+    });
+    return Math.round(bestScore * 100);
+  }
+
+  // 更新每日学习日志
+  function bumpDaily(type, minutes) {
+    const tk = todayKey();
+    const log = state.english.dailyLogs[tk] || { word: 0, sent: 0, speak: 0, listen: 0, gram: 0, totalMin: 0 };
+    log[type] = (log[type] || 0) + minutes;
+    log.totalMin = Object.entries(log).filter(([k]) => k !== 'totalMin').reduce((s, [, v]) => s + v, 0);
+    state.english.dailyLogs[tk] = log;
+    saveData();
+  }
+
+  // 标记掌握 -> 推进艾宾浩斯
+  function markMastered(type, itemId) {
+    const lists = {
+      word: state.english.vocab.items,
+      sent: state.english.sentences.items
+    };
+    const arr = lists[type];
+    if (!arr) return;
+    let item = arr.find(x => x.id === itemId);
+    if (!item) {
+      // 预置词：在自定义里也保存一份标记
+      const preset = PRESET_VOCAB.find(v => 'p-' + v.scene + '-' + v.word === itemId);
+      if (preset && type === 'word') {
+        item = {
+          id: uid(),
+          word: preset.word,
+          phonetic: preset.phonetic,
+          meaning: preset.meaning,
+          example: preset.example,
+          scene: preset.scene,
+          isCustom: false,
+          fromPreset: preset.word,
+          learnedDate: todayKey(),
+          reviewStep: 0,
+          nextReview: calcNextReviewDate(todayKey(), 0),
+          mastered: false
+        };
+        state.english.vocab.items.push(item);
+      } else {
+        return;
+      }
+    }
+    if (item.reviewStep >= REVIEW_INTERVALS.length) {
+      item.mastered = true;
+      item.nextReview = null;
+      toast('🎉 已毕业！');
+    } else {
+      item.learnedDate = todayKey();
+      item.reviewStep = (item.reviewStep || 0) + 1;
+      item.nextReview = calcNextReviewDate(todayKey(), item.reviewStep);
+      toast(item.reviewStep >= REVIEW_INTERVALS.length ? '🎉 完成 5 轮复习，毕业！' : `✓ 标记掌握，下次复习：${item.nextReview}`);
+    }
+    saveData();
+    renderEnglish();
+  }
+
+  // 主渲染
+  function renderEnglish() {
+    // 详情子视图不显示时刷新主视图
+    if ($('#engTrainDetail')?.style.display !== 'none') return;
+
+    // 今日进度
+    const settings = state.english.settings;
+    const log = state.english.dailyLogs[todayKey()] || { word: 0, sent: 0, speak: 0, listen: 0, gram: 0 };
+    const target = settings.wordMin + settings.sentMin + settings.speakMin + settings.listenMin + settings.gramMin;
+    const done = Math.min(log.word + log.sent + log.speak + log.listen + log.gram, target);
+
+    $('#engProgressNum').textContent = `${done}/${target}`;
+    const pct = done / target;
+    const ring = $('#engRingFill');
+    const dash = 176;
+    ring.setAttribute('stroke-dashoffset', String(dash * (1 - pct)));
+    if (pct >= 1) ring.setAttribute('stroke', '#16a34a');
+    else ring.setAttribute('stroke', '#f59e0b');
+
+    $('#engProgressSub').textContent = pct >= 1 ? '🎉 今日 60 分钟已完成！' : '完成训练项目以积累时长';
+    $('#engProgressTip').textContent = pct >= 1 ? '完成度 100% · 保持节奏' : `完成度 ${Math.round(pct*100)}%`;
+
+    // 复习板
+    const dueVocab = getMergedVocab().filter(isDue).slice(0, 20);
+    const dueSent = getMergedSentences().filter(isDue).slice(0, 20);
+    const dueAll = [
+      ...dueVocab.map(v => ({ ...v, kind: 'word' })),
+      ...dueSent.map(s => ({ ...s, kind: 'sent' }))
+    ];
+    const reviewPanel = $('#eng-review-panel');
+    if (dueAll.length > 0) {
+      reviewPanel.style.display = 'block';
+      $('#engReviewCount').textContent = `共 ${dueAll.length} 条待复习`;
+      $('#engReviewList').innerHTML = dueAll.map(item => {
+        const urgent = item.nextReview < todayKey();
+        const text = item.word || item.en;
+        return `<div class="review-item ${urgent ? 'urgent' : ''}">
+          <span class="review-flag">${urgent ? '⚠️' : '📌'}</span>
+          <span class="review-word">${escapeHtml(text)}${item.word ? ` <span class="muted" style="font-size:11px">${escapeHtml(item.meaning || '')}</span>` : ''}</span>
+          <span class="review-step">第 ${(item.reviewStep || 0) + 1} 轮</span>
+          <button class="review-action" data-act="review" data-id="${escapeHtml(item.id)}" data-kind="${item.kind}">复习</button>
+        </div>`;
+      }).join('');
+      $$('#engReviewList [data-act="review"]').forEach(b => {
+        b.addEventListener('click', () => openTrain(b.dataset.kind, b.dataset.id));
+      });
+    } else {
+      reviewPanel.style.display = 'none';
+    }
+
+    // 训练卡片时长和进度
+    ['word', 'sent', 'speak', 'listen', 'gram'].forEach(type => {
+      const timeEl = document.querySelector(`[data-min="${type}"]`);
+      if (timeEl) timeEl.textContent = `${settings[type + 'Min']} 分钟`;
+      const progEl = document.querySelector(`[data-progress="${type}"]`);
+      if (progEl) {
+        const have = log[type] || 0;
+        const targetM = settings[type + 'Min'];
+        progEl.textContent = `${have}/${targetM} 分钟`;
+      }
+    });
+
+    // 训练卡片点击
+    $$('.eng-train-card').forEach(c => {
+      c.onclick = () => openTrain(c.dataset.type, null);
+    });
+  }
+
+  // 打开训练详情
+  let currentTrain = { type: null, itemId: null };
+  function openTrain(type, itemId) {
+    currentTrain = { type, itemId };
+    $('#engTrainDetail').style.display = 'block';
+    $('#engDetailBody').innerHTML = '<div class="dy-loading">加载中...</div>';
+    // 隐藏主列表、滚动到详情
+    $$('.eng-train-grid, #eng-review-panel, .eng-progress-card, .eng-tip-card, #engSettingsBtn').forEach(el => {
+      el.style.display = 'none';
+    });
+    document.querySelector('.main').scrollTop = 0;
+    renderTrainDetail(type, itemId);
+  }
+  function closeTrainDetail() {
+    $('#engTrainDetail').style.display = 'none';
+    $$('.eng-train-grid, #eng-review-panel, .eng-progress-card, .eng-tip-card').forEach(el => {
+      el.style.display = '';
+    });
+    renderEnglish();
+    document.querySelector('.main').scrollTop = 0;
+  }
+  $('#engDetailBack').addEventListener('click', closeTrainDetail);
+
+  function renderTrainDetail(type, itemId) {
+    const body = $('#engDetailBody');
+    if (type === 'word') return renderWordTrain(body, itemId);
+    if (type === 'sent') return renderSentTrain(body, itemId);
+    if (type === 'speak') return renderSpeakTrain(body);
+    if (type === 'listen') return renderListenTrain(body);
+    if (type === 'gram') return renderGramTrain(body);
+  }
+
+  // === 单词训练：翻面卡 + TTS ===
+  function renderWordTrain(container, itemId) {
+    const all = getMergedVocab();
+    let pool = itemId ? all.filter(v => v.id === itemId) : all.filter(v => !v.mastered);
+    if (pool.length === 0) pool = all.slice(0, 10);
+    let idx = 0;
+    const render = () => {
+      const item = pool[idx];
+      const sceneName = ENG_SCENES[item.scene]?.name || item.scene;
+      container.innerHTML = `
+        <div style="text-align:center;margin-bottom:8px;color:var(--text-mute);font-size:12px">
+          第 ${idx+1}/${pool.length} 个 · ${sceneName} · ${item.isCustom || item.isPreset === false ? '自定义' : '预置'}
+        </div>
+        <div class="flash-card" id="flashCard">
+          <div class="flash-card-inner">
+            <div class="flash-card-face flash-card-front">
+              <div class="flash-card-word">${escapeHtml(item.word)}</div>
+              <div class="flash-card-phonetic">${escapeHtml(item.phonetic || '')}</div>
+              <button class="tts-btn" data-act="tts">▶</button>
+              <div class="flash-card-tap">点击卡片查看释义</div>
+            </div>
+            <div class="flash-card-face flash-card-back">
+              <div class="flash-card-meaning">${escapeHtml(item.meaning || '')}</div>
+              <div class="flash-card-example">${escapeHtml(item.example || '')}</div>
+              <button class="tts-btn" data-act="tts-ex">▶</button>
+            </div>
+          </div>
+        </div>
+        <div class="train-actions">
+          <button class="ghost-btn" id="prevWord">← 上一个</button>
+          <button class="ghost-btn" id="flipWord">翻面</button>
+          <button class="ghost-btn" id="nextWord">下一个 →</button>
+        </div>
+        <button class="primary-btn block" style="margin-top:10px" id="masterWord">✓ 标记掌握</button>
+      `;
+      $('#flashCard').onclick = (e) => {
+        if (e.target.closest('[data-act]')) return;
+        $('#flashCard').classList.toggle('flipped');
+      };
+      container.querySelector('[data-act="tts"]').onclick = () => speak(item.word);
+      container.querySelector('[data-act="tts-ex"]').onclick = () => speak(item.example || item.word);
+      $('#prevWord').onclick = () => { if (idx > 0) idx--; render(); };
+      $('#nextWord').onclick = () => { if (idx < pool.length - 1) idx++; else { idx = 0; }; render(); };
+      $('#flipWord').onclick = () => $('#flashCard').classList.toggle('flipped');
+      $('#masterWord').onclick = () => {
+        markMastered('word', item.id);
+        bumpDaily('word', 1);
+        toast('已标记掌握');
+        idx = Math.min(idx, pool.length - 2);
+        if (idx < 0) idx = 0;
+        render();
+      };
+    };
+    render();
+  }
+
+  // === 句型训练：跟读 ===
+  function renderSentTrain(container, itemId) {
+    const all = getMergedSentences();
+    let pool = itemId ? all.filter(s => s.id === itemId) : all.filter(s => !s.mastered);
+    if (pool.length === 0) pool = all.slice(0, 10);
+    let idx = 0;
+    const render = () => {
+      const s = pool[idx];
+      const sceneName = ENG_SCENES[s.scene]?.name || s.scene;
+      container.innerHTML = `
+        <div style="text-align:center;margin-bottom:8px;color:var(--text-mute);font-size:12px">
+          第 ${idx+1}/${pool.length} 句 · ${sceneName}
+        </div>
+        <div class="flash-card" id="sentCard" style="min-height:160px">
+          <div class="flash-card-inner">
+            <div class="flash-card-face flash-card-front">
+              <div style="font-size:20px;font-weight:600;line-height:1.5;color:var(--text)">${escapeHtml(s.en)}</div>
+              <button class="tts-btn" data-act="tts-sent">▶</button>
+              <div class="flash-card-tap">点击查看译文</div>
+            </div>
+            <div class="flash-card-face flash-card-back" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0)">
+              <div style="font-size:18px;color:var(--text);line-height:1.6">${escapeHtml(s.zh)}</div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;margin:10px 0">
+          <button class="record-btn" id="recSent">🎤 跟读录音</button>
+          <div id="recSentResult"></div>
+        </div>
+        <div class="train-actions">
+          <button class="ghost-btn" id="prevSent">← 上一句</button>
+          <button class="ghost-btn" id="flipSent">显示译文</button>
+          <button class="ghost-btn" id="nextSent">下一句 →</button>
+        </div>
+        <button class="primary-btn block" style="margin-top:10px" id="masterSent">✓ 标记掌握</button>
+      `;
+      $('#sentCard').onclick = (e) => {
+        if (e.target.closest('[data-act]')) return;
+        $('#sentCard').classList.toggle('flipped');
+      };
+      container.querySelector('[data-act="tts-sent"]').onclick = () => speak(s.en, 'en-US', 0.8);
+      $('#prevSent').onclick = () => { if (idx > 0) idx--; render(); };
+      $('#nextSent').onclick = () => { if (idx < pool.length - 1) idx++; else idx = 0; render(); };
+      $('#flipSent').onclick = () => $('#sentCard').classList.toggle('flipped');
+      $('#masterSent').onclick = () => {
+        markMastered('sent', s.id);
+        bumpDaily('sent', 1);
+        toast('已标记掌握');
+        idx = Math.min(idx, pool.length - 2);
+        if (idx < 0) idx = 0;
+        render();
+      };
+
+      const recBtn = $('#recSent');
+      const recResult = $('#recSentResult');
+      recBtn.onclick = async () => {
+        if (recBtn.classList.contains('recording')) return;
+        recResult.innerHTML = '';
+        const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+        const hasMic = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        if (!hasMic) {
+          recResult.innerHTML = '<div class="muted" style="font-size:12px">⚠️ 当前环境不支持麦克风，请自评掌握度</div>';
+          return;
+        }
+        recBtn.classList.add('recording');
+        recBtn.textContent = '⏺ 录音中...';
+        try {
+          // 录音与识别并发进行
+          const recP = recordAudio(6000).catch(() => null);
+          let recRes = null;
+          if (hasSR) {
+            try { recRes = await recognizeSpeech(); } catch (e) { recRes = null; }
+          }
+          const blob = await recP;
+          if (blob && blob.size > 0) {
+            state.english.recordings[uid()] = { duration: 6, mime: blob.type, createdAt: new Date().toISOString() };
+          }
+          recBtn.classList.remove('recording');
+          recBtn.textContent = '🎤 跟读录音';
+          if (recRes && recRes.length) {
+            const score = scoreText(s.en, recRes);
+            recResult.innerHTML = `<div class="score-display">
+              <div class="score-num">${score}<span style="font-size:18px">分</span></div>
+              <div class="score-label">识别结果：${escapeHtml(recRes[0])}</div>
+            </div>`;
+            if (score >= 70) {
+              markMastered('sent', s.id);
+              bumpDaily('sent', 2);
+              toast('🎉 跟读表现优秀，自动标记掌握');
+            } else {
+              bumpDaily('sent', 1);
+            }
+          } else {
+            recResult.innerHTML = '<div class="muted" style="font-size:12px">✓ 录音完成（评分需用 Chrome 安卓版）</div>';
+            bumpDaily('sent', 1);
+          }
+        } catch (e) {
+          recBtn.classList.remove('recording');
+          recBtn.textContent = '🎤 跟读录音';
+          recResult.innerHTML = '<div class="muted" style="font-size:12px">⚠️ 录音失败，请检查麦克风权限</div>';
+        }
+      };
+    };
+    render();
+  }
+
+  // === 口语训练：AI 模板对话 ===
+  function renderSpeakTrain(container) {
+    const sceneIds = Object.keys(PRESET_SPEAK_SCENES);
+    let sceneId = sceneIds[0];
+    const history = [];
+    const greeting = (PRESET_SPEAK_SCENES[sceneId].bot)('hello');
+    history.push({ role: 'bot', text: greeting });
+    const render = () => {
+      container.innerHTML = `
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          ${sceneIds.map(id => `<button class="chip ${id === sceneId ? 'active' : ''}" data-scene="${id}" style="${id === sceneId ? 'background:var(--accent);color:#fff' : ''}">${PRESET_SPEAK_SCENES[id].name}</button>`).join('')}
+        </div>
+        <div class="panel" style="margin-bottom:0;padding:10px">
+          <div id="speakHist" style="min-height:200px;max-height:300px;overflow-y:auto">
+            ${history.map(m => m.role === 'bot'
+              ? `<div class="speak-bot-bubble">🤖 ${escapeHtml(m.text)}</div>`
+              : `<div class="speak-user-bubble">${escapeHtml(m.text)}</div>`).join('')}
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <div class="quick-replies" id="quickRep"></div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <input type="text" id="speakInput" placeholder="或输入英文回复..." style="flex:1;padding:10px;border-radius:20px;border:1px solid var(--border);background:var(--panel);font-size:14px" />
+            <button class="tts-btn" id="speakMic" style="margin:0">🎤</button>
+            <button class="primary-btn" id="speakSend" style="border-radius:20px;padding:0 16px">发送</button>
+          </div>
+          <div id="speakScore" style="margin-top:8px"></div>
+        </div>
+      `;
+      // 场景切换
+      container.querySelectorAll('[data-scene]').forEach(b => b.onclick = () => {
+        sceneId = b.dataset.scene;
+        history.length = 0;
+        history.push({ role: 'bot', text: PRESET_SPEAK_SCENES[sceneId].bot('hello') });
+        bumpDaily('speak', 1);
+        render();
+      });
+
+      const quickReplies = [
+        'Hello', 'I would like a coffee', 'How much is it?',
+        'For here, please', 'That is all, thanks', 'Can I pay by card?'
+      ];
+      $('#quickRep').innerHTML = quickReplies.map(r => `<button class="quick-reply">${escapeHtml(r)}</button>`).join('');
+      $$('#quickRep .quick-reply').forEach(b => b.onclick = () => {
+        $('#speakInput').value = b.textContent;
+        sendUser();
+      });
+
+      const sendUser = () => {
+        const input = $('#speakInput').value.trim();
+        if (!input) return;
+        history.push({ role: 'user', text: input });
+        const reply = PRESET_SPEAK_SCENES[sceneId].bot(input);
+        setTimeout(() => {
+          history.push({ role: 'bot', text: reply });
+          speak(reply);
+          bumpDaily('speak', 1);
+          render();
+          $('#speakHist').scrollTop = $('#speakHist').scrollHeight;
+        }, 400);
+        $('#speakInput').value = '';
+        render();
+        $('#speakHist').scrollTop = $('#speakHist').scrollHeight;
+      };
+      $('#speakSend').onclick = sendUser;
+      $('#speakInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendUser(); });
+
+      // 麦克风
+      $('#speakMic').onclick = async () => {
+        const hasSR = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+        if (!hasSR) {
+          $('#speakScore').innerHTML = '<div class="muted" style="font-size:12px">⚠️ 当前浏览器不支持语音识别（建议 Chrome 安卓版）</div>';
+          return;
+        }
+        $('#speakScore').innerHTML = '<div class="muted" style="font-size:12px">🎤 正在听...</div>';
+        try {
+          const res = await recognizeSpeech();
+          if (res && res[0]) {
+            $('#speakInput').value = res[0];
+            sendUser();
+          }
+        } catch (e) {
+          $('#speakScore').innerHTML = '<div class="muted" style="font-size:12px">⚠️ 识别失败，请手动输入</div>';
+        }
+      };
+
+      // 自动朗读最新 bot 消息
+      const last = history.filter(m => m.role === 'bot').slice(-1)[0];
+      if (last) speak(last.text);
+    };
+    render();
+  }
+
+  // === 听力训练：TTS 播放 + 选择题 ===
+  function renderListenTrain(container) {
+    const passages = [
+      {
+        text: 'Hi! I would like a cappuccino, please.',
+        cn: '嗨！我想要一杯卡布奇诺。',
+        q: 'What does the speaker want?',
+        options: ['A cup of tea', 'A cappuccino', 'A glass of water'],
+        answer: 1
+      },
+      {
+        text: 'Excuse me, where is the nearest subway station?',
+        cn: '请问最近的地铁站在哪里？',
+        q: 'Where does the speaker want to go?',
+        options: ['The bus stop', 'The subway station', 'The airport'],
+        answer: 1
+      },
+      {
+        text: 'Could I have the bill, please?',
+        cn: '请给我账单好吗？',
+        q: 'What does the speaker want?',
+        options: ['A menu', 'The bill', 'A glass of water'],
+        answer: 1
+      },
+      {
+        text: 'I am looking for a red dress in size medium.',
+        cn: '我在找一件中号的红色连衣裙。',
+        q: 'What is the speaker looking for?',
+        options: ['A red dress', 'A blue shirt', 'Black shoes'],
+        answer: 0
+      },
+      {
+        text: 'What time does the train leave?',
+        cn: '火车几点开？',
+        q: 'What does the speaker want to know?',
+        options: ['The price', 'The time', 'The platform'],
+        answer: 1
+      }
+    ];
+    let idx = 0;
+    let answered = false;
+    const render = () => {
+      const p = passages[idx];
+      container.innerHTML = `
+        <div style="text-align:center;margin-bottom:10px;color:var(--text-mute);font-size:12px">
+          第 ${idx+1}/${passages.length} 题
+        </div>
+        <div class="listen-q">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <button class="tts-btn" id="playListen">▶</button>
+            <span style="font-size:12px;color:var(--text-mute)">点击播放 · 听完回答</span>
+          </div>
+          <div class="listen-passage" style="font-style:italic">"${escapeHtml(p.text)}"</div>
+          <div style="margin-top:8px;font-size:12px;color:var(--text-mute)">${escapeHtml(p.cn)}</div>
+        </div>
+        <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:12px">${escapeHtml(p.q)}</div>
+        <div class="listen-options" id="listenOpts">
+          ${p.options.map((o, i) => `<div class="listen-option" data-idx="${i}">${escapeHtml(o)}</div>`).join('')}
+        </div>
+        <div id="listenFeedback" style="margin-top:10px;text-align:center"></div>
+        <div class="train-actions" style="margin-top:14px">
+          <button class="ghost-btn" id="prevListen">← 上一题</button>
+          <button class="ghost-btn" id="nextListen">下一题 →</button>
+        </div>
+      `;
+      $('#playListen').onclick = () => speak(p.text, 'en-US', 0.85);
+      $('#prevListen').onclick = () => { if (idx > 0) idx--; answered = false; render(); };
+      $('#nextListen').onclick = () => { if (idx < passages.length - 1) idx++; else idx = 0; answered = false; render(); };
+      $$('#listenOpts .listen-option').forEach(o => o.onclick = () => {
+        if (answered) return;
+        answered = true;
+        const ci = parseInt(o.dataset.idx);
+        const isCorrect = ci === p.answer;
+        o.classList.add(isCorrect ? 'correct' : 'wrong');
+        if (!isCorrect) {
+          $$('#listenOpts .listen-option').forEach((x, i) => { if (i === p.answer) x.classList.add('correct'); });
+        }
+        $('#listenFeedback').innerHTML = `<div class="score-num" style="font-size:28px;color:${isCorrect ? 'var(--success)' : 'var(--danger)'}">
+          ${isCorrect ? '✓ 正确 +3 分' : '✗ 再听一遍吧'}
+        </div>`;
+        if (isCorrect) {
+          bumpDaily('listen', 2);
+          state.english.listening.logs.push({ id: uid(), date: todayKey(), passage: p.text, correctRate: 1, createdAt: new Date().toISOString() });
+          saveData();
+        } else {
+          bumpDaily('listen', 1);
+        }
+      });
+      // 自动播放
+      setTimeout(() => speak(p.text, 'en-US', 0.85), 300);
+    };
+    render();
+  }
+
+  // === 语法训练：卡片 ===
+  function renderGramTrain(container) {
+    const learned = new Set(state.english.grammar.learned.map(g => g.grammarId));
+    let idx = 0;
+    let pool = PRESET_GRAMMAR;
+    const render = () => {
+      const g = pool[idx];
+      const isLearned = learned.has(g.id);
+      container.innerHTML = `
+        <div style="text-align:center;margin-bottom:8px;color:var(--text-mute);font-size:12px">
+          第 ${idx+1}/${pool.length} 卡片 · ${isLearned ? '✓ 已学' : '未学'}
+        </div>
+        <div class="flash-card" id="gramCard" style="min-height:200px">
+          <div class="flash-card-inner">
+            <div class="flash-card-face flash-card-front">
+              <div style="font-size:13px;color:var(--text-mute);margin-bottom:6px">语法点</div>
+              <div class="flash-card-word" style="font-size:24px">${escapeHtml(g.title)}</div>
+              <button class="tts-btn" data-act="tts-title">▶</button>
+              <div class="flash-card-tap">点击查看解释</div>
+            </div>
+            <div class="flash-card-face flash-card-back" style="background:linear-gradient(135deg,#fef3c7,#fde68a)">
+              <div class="flash-card-example" style="font-size:14px;text-align:left;line-height:1.8">
+                <strong>说明：</strong>${escapeHtml(g.explain)}<br/>
+                <strong>例句：</strong>${escapeHtml(g.example)}
+              </div>
+              <button class="tts-btn" data-act="tts-ex2">▶</button>
+            </div>
+          </div>
+        </div>
+        <div class="train-actions">
+          <button class="ghost-btn" id="prevGram">← 上一卡</button>
+          <button class="ghost-btn" id="flipGram">翻面</button>
+          <button class="ghost-btn" id="nextGram">下一卡 →</button>
+        </div>
+        <button class="primary-btn block" style="margin-top:10px" id="masterGram">${isLearned ? '✓ 已学（点击取消）' : '✓ 标记已学'}</button>
+      `;
+      $('#gramCard').onclick = (e) => {
+        if (e.target.closest('[data-act]')) return;
+        $('#gramCard').classList.toggle('flipped');
+      };
+      container.querySelector('[data-act="tts-title"]').onclick = () => speak(g.title, 'en-US', 0.85);
+      container.querySelector('[data-act="tts-ex2"]').onclick = () => speak(g.example);
+      $('#prevGram').onclick = () => { if (idx > 0) idx--; render(); };
+      $('#nextGram').onclick = () => { if (idx < pool.length - 1) idx++; else idx = 0; render(); };
+      $('#flipGram').onclick = () => $('#gramCard').classList.toggle('flipped');
+      $('#masterGram').onclick = () => {
+        if (isLearned) {
+          state.english.grammar.learned = state.english.grammar.learned.filter(x => x.grammarId !== g.id);
+          toast('已取消标记');
+        } else {
+          state.english.grammar.learned.push({ id: uid(), grammarId: g.id, date: todayKey() });
+          bumpDaily('gram', 1);
+          toast('已标记已学');
+        }
+        saveData();
+        render();
+      };
+    };
+    render();
+  }
+
+  // === 时长设置模态 ===
+  $('#engSettingsBtn').addEventListener('click', () => {
+    const s = state.english.settings;
+    const body = `
+      <div style="font-size:12px;color:var(--text-mute);margin-bottom:10px">
+        调整 5 项训练的时长分配，总时长必须 = 60 分钟。
+      </div>
+      ${['word', 'sent', 'speak', 'listen', 'gram'].map(t => `
+        <div class="field-row" style="align-items:center">
+          <div class="field" style="flex:1;margin-bottom:0">
+            <label>${t === 'word' ? '单词' : t === 'sent' ? '句型' : t === 'speak' ? '口语' : t === 'listen' ? '听力' : '语法'}</label>
+            <input type="range" min="0" max="40" value="${s[t+'Min']}" data-input="${t}" />
+          </div>
+          <span style="font-size:14px;font-weight:600;min-width:48px;text-align:right" id="disp-${t}">${s[t+'Min']} 分钟</span>
+        </div>
+      `).join('')}
+      <div style="margin-top:12px;text-align:center;font-size:14px">
+        总时长：<strong id="engTotal" style="color:var(--accent-strong)">60</strong> / 60 分钟
+      </div>
+      <div class="form-actions">
+        <button class="ghost-btn" id="modalCancel">取消</button>
+        <button class="primary-btn" id="modalOk">保存</button>
+      </div>
+    `;
+    showModal('时长设置', body, () => {
+      const recalc = () => {
+        let total = 0;
+        ['word', 'sent', 'speak', 'listen', 'gram'].forEach(t => {
+          const v = parseInt($(`[data-input="${t}"]`).value);
+          total += v;
+          $(`#disp-${t}`).textContent = v + ' 分钟';
+        });
+        $('#engTotal').textContent = total;
+        $('#engTotal').style.color = total === 60 ? 'var(--success)' : 'var(--danger)';
+        $('#modalOk').disabled = total !== 60;
+      };
+      $$('[data-input]').forEach(el => el.addEventListener('input', recalc));
+      recalc();
+      $('#modalCancel').onclick = closeModal;
+      $('#modalOk').onclick = () => {
+        ['word', 'sent', 'speak', 'listen', 'gram'].forEach(t => {
+          state.english.settings[t+'Min'] = parseInt($(`[data-input="${t}"]`).value);
+        });
+        saveData();
+        toast('已保存');
+        closeModal();
+        renderEnglish();
+      };
+    });
+  });
+
+  // 路由
+  function renderEnglishIfActive() {
+    if ($('#view-english')?.classList.contains('active')) renderEnglish();
+  }
+
+  /* ========== 抖音助手 ========== */
+  const DY_DATA_KEY = 'donna-douyin-cache-v1';
+  const DY_BLOGGERS = [
+    { name: 'cc_如', style: '温柔韩系穿搭', emoji: '🌸' },
+    { name: '于佳含', style: '小个子显瘦穿搭', emoji: '👗' },
+    { name: '陈鱼油', style: '法式温柔穿搭', emoji: '🌿' }
+  ];
+
+  // 从 localStorage 读取缓存的抓取数据
+  function getDouyinCache() {
+    try {
+      const raw = localStorage.getItem(DY_DATA_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return {};
+  }
+  function saveDouyinCache(data) {
+    try { localStorage.setItem(DY_DATA_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+
+  // 内置示例数据（基于三位达人的真实风格特征）
+  function getBuiltinVideos() {
+    const titles = [
+      [
+        '温柔韩系穿搭｜奶油色针织开衫+高腰阔腿裤，秋日氛围感拉满 #穿搭 #ootd #韩系穿搭',
+        '早秋通勤穿搭｜卡其色风衣+白T+牛仔裤，简约又高级 #通勤穿搭 #秋季穿搭',
+        '周末约会穿搭｜碎花半裙+针织马甲，温柔甜美风 #约会穿搭 #ootd'
+      ],
+      [
+        '162小个子穿搭｜法式收腰连衣裙，拉长比例显腿长 #小个子穿搭 #连衣裙',
+        '小个子显瘦搭配｜高腰西装裤+短款针织衫，三七比例轻松get #显瘦穿搭 #小个子',
+        '微胖小个子穿搭｜A字半身裙+宽松衬衫，遮肉又显瘦 #微胖穿搭 #小个子'
+      ],
+      [
+        '法式温柔穿搭｜茶歇裙+编织草帽，夏日度假氛围感 #法式穿搭 #ootd',
+        '今日穿搭look｜法式复古衬衫+高腰直筒裤，慵懒优雅 #ootd #法式穿搭',
+        '开春搭配｜莫兰迪色系针织套装，温柔到骨子里 #开春搭配 #温柔穿搭'
+      ]
+    ];
+    return DY_BLOGGERS.map((b, i) => ({
+      videoId: '',
+      title: titles[i][Math.floor(Math.random() * titles[i].length)],
+      cover: '',
+      author: b.name,
+      authorStyle: b.style,
+      emoji: b.emoji,
+      playUrl: `https://www.douyin.com/search/${encodeURIComponent(b.name + ' 穿搭')}`,
+      authorHome: b.home || '',
+      fallback: true
+    }));
+  }
+
+  // 尝试从远程加载抓取数据
+  async function fetchDouyinData() {
+    // file:// 协议下 fetch 会被浏览器禁止，直接跳过避免控制台报错
+    if (location.protocol === 'file:') return null;
+    const urls = [
+      'data/douyin-videos.json',
+      './data/douyin-videos.json',
+      '/data/douyin-videos.json'
+    ];
+    for (const url of urls) {
+      try {
+        const resp = await fetch(url, { cache: 'no-cache' });
+        if (resp.ok) {
+          const data = await resp.json();
+          saveDouyinCache(data);
+          return data;
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  function renderDouyin() {
+    const cache = getDouyinCache();
+    const today = todayKey();
+    let todayData = cache[today];
+
+    // 如果缓存没有今天的数据，先用内置数据
+    if (!todayData) {
+      todayData = {
+        date: today,
+        scrapedAt: new Date().toISOString(),
+        videos: getBuiltinVideos(),
+        source: 'builtin'
+      };
+      cache[today] = todayData;
+      saveDouyinCache(cache);
+    }
+
+    renderDouyinMain(todayData);
+    renderDouyinHistory(cache);
+
+    // 异步尝试加载远程数据（仅当源不是 douyin 时）
+    if (todayData.source !== 'douyin') {
+      fetchDouyinData().then(remoteData => {
+        if (remoteData && remoteData[today]) {
+          const newCache = getDouyinCache();
+          newCache[today] = remoteData[today];
+          saveDouyinCache(newCache);
+          if (remoteData[today].source === 'douyin' ||
+              JSON.stringify(remoteData[today].videos) !== JSON.stringify(todayData.videos)) {
+            renderDouyinMain(remoteData[today]);
+            renderDouyinHistory(remoteData);
+          }
+        }
+      }).catch(() => {});
+    }
+  }
+
+  function renderDouyinMain(data) {
+    $('#dyDate').textContent = `(${data.date})`;
+    const srcEl = $('#dySource');
+    if (data.source === 'douyin') {
+      srcEl.textContent = `✓ 实时抓取 ${data.realCount || data.videos.length} 条`;
+      srcEl.className = 'dy-source';
+    } else if (data.source === 'fallback') {
+      srcEl.textContent = '精选推荐';
+      srcEl.className = 'dy-source fallback';
+    } else {
+      srcEl.textContent = '风格精选';
+      srcEl.className = 'dy-source fallback';
+    }
+
+    const list = $('#dyVideoList');
+    if (!data.videos || data.videos.length === 0) {
+      list.innerHTML = '<div class="dy-loading">暂无数据，点击刷新重试</div>';
+      return;
+    }
+
+    list.innerHTML = data.videos.map((v, i) => {
+      const blogger = DY_BLOGGERS.find(b => b.name === v.author) || {};
+      const emoji = v.emoji || blogger.emoji || '🎬';
+      const authorChar = (v.author || '?').charAt(0);
+      const colorMap = { 'cc_如': 'cc', '于佳含': 'yu', '陈鱼油': 'chen' };
+      const colorCls = colorMap[v.author] || 'cc';
+      const cover = v.cover
+        ? `<img src="${escapeHtml(v.cover)}" alt="${escapeHtml(v.author)}" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=&quot;dy-cover-fallback ${colorCls}&quot;>${authorChar}</span>'" />`
+        : `<span class="dy-cover-fallback ${colorCls}">${authorChar}</span>`;
+      const playUrl = v.playUrl || (v.videoId ? `https://www.douyin.com/video/${v.videoId}` : '#');
+      const fans = v.fans ? `${v.fans}粉丝` : '';
+      const likes = v.likes ? `${v.likes}获赞` : '';
+      return `<a class="dy-video-card" href="${escapeHtml(playUrl)}" target="_blank" rel="noopener">
+        <div class="dy-cover">${cover}</div>
+        <div class="dy-video-body">
+          <span class="dy-rank">TOP ${i + 1}</span>
+          <div class="dy-video-title">${escapeHtml(v.title)}</div>
+          <div class="dy-video-author">${escapeHtml(v.author)}</div>
+          <div class="dy-video-meta">
+            <span class="dy-style-tag">${escapeHtml(v.authorStyle || blogger.style || '穿搭')}</span>
+            ${fans ? `<span>${fans}</span>` : ''}
+            ${likes ? `<span>${likes}</span>` : ''}
+          </div>
+        </div>
+      </a>`;
+    }).join('');
+  }
+
+  function renderDouyinHistory(cache) {
+    const keys = Object.keys(cache).sort().reverse();
+    const select = $('#dyHistory');
+    const currentValue = select.value;
+    select.innerHTML = keys.length > 0
+      ? keys.map(k => `<option value="${k}">${k}</option>`).join('')
+      : '<option value="">暂无历史</option>';
+    if (currentValue && keys.includes(currentValue)) select.value = currentValue;
+
+    const list = $('#dyHistoryList');
+    if (keys.length <= 1) {
+      list.innerHTML = '<div class="empty">暂无历史归档</div>';
+      return;
+    }
+    list.innerHTML = keys.slice(0, 10).map(k => {
+      const d = cache[k];
+      const titles = (d.videos || []).map(v => v.author).join(' / ');
+      return `<div class="dy-history-item">
+        <div class="dy-history-date">${k}</div>
+        <div class="dy-history-titles">${escapeHtml(titles)} · ${d.videos.length}条</div>
+      </div>`;
+    }).join('');
+  }
+
+  // 历史选择切换
+  $('#dyHistory').addEventListener('change', (e) => {
+    const cache = getDouyinCache();
+    const data = cache[e.target.value];
+    if (data) {
+      renderDouyinMain(data);
+      $('#dyDate').textContent = `(${data.date})`;
+    }
+  });
+
+  // 刷新按钮
+  $('#dyRefresh').addEventListener('click', async () => {
+    const btn = $('#dyRefresh');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ 抓取中...';
+    btn.disabled = true;
+
+    toast('正在抓取最新数据...');
+
+    const remoteData = await fetchDouyinData();
+    if (remoteData) {
+      const today = todayKey();
+      if (remoteData[today]) {
+        renderDouyinMain(remoteData[today]);
+        renderDouyinHistory(remoteData);
+        toast(remoteData[today].source === 'douyin' ? '✓ 已更新' : '已加载精选数据');
+      } else {
+        toast('今日数据尚未生成');
+      }
+    } else {
+      // 远程不可用时，重新生成内置数据
+      const cache = getDouyinCache();
+      cache[todayKey()] = {
+        date: todayKey(),
+        scrapedAt: new Date().toISOString(),
+        videos: getBuiltinVideos(),
+        source: 'builtin'
+      };
+      saveDouyinCache(cache);
+      renderDouyinMain(cache[todayKey()]);
+      renderDouyinHistory(cache);
+      toast('已刷新精选推荐');
+    }
+
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  });
+
+  /* ========== 弹窗通用 ========== */
+  function showModal(title, bodyHtml, onShown) {
+    $('#modalTitle').textContent = title;
+    $('#modalBody').innerHTML = bodyHtml;
+    $('#modal').classList.add('show');
+    onShown && onShown();
+  }
+  function closeModal() { $('#modal').classList.remove('show'); }
+  $('#modalClose').addEventListener('click', closeModal);
+  $('#modal').addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal-mask')) closeModal();
+  });
+
+  /* ========== 导入/导出/重置 ========== */
+  $('#exportBtn').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `donna-backup-${todayKey()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('已导出 JSON 文件');
+  });
+
+  $('#importBtn').addEventListener('click', () => $('#importInput').click());
+  $('#importInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (confirm('导入将覆盖当前所有数据，确定继续？')) {
+          state = { ...defaultData, ...data, medical: { ...defaultData.medical, ...(data.medical||{}) } };
+          saveData();
+          renderOverview();
+          toast('导入成功');
+        }
+      } catch (err) {
+        toast('文件格式错误');
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  $('#resetBtn').addEventListener('click', () => {
+    if (confirm('确定清空所有数据吗？此操作不可恢复！')) {
+      if (confirm('再次确认：所有任务、账单、记录都将被清空')) {
+        state = JSON.parse(JSON.stringify(defaultData));
+        saveData();
+        renderOverview(); renderTasks(); renderFinance(); renderStudy(); renderSport(); renderMedical(); renderMemos();
+        toast('已重置');
+      }
+    }
+  });
+
+  /* ========== 初始化 ========== */
+  renderOverview();
+
+  // 启动时立即预加载抖音数据（不阻塞首屏）
+  fetchDouyinData().then(remoteData => {
+    if (remoteData) {
+      const today = todayKey();
+      const cache = getDouyinCache();
+      let updated = false;
+      Object.keys(remoteData).forEach(k => {
+        if (!cache[k]) {
+          cache[k] = remoteData[k];
+          updated = true;
+        }
+      });
+      if (cache[today] && cache[today].source === 'builtin' && remoteData[today]) {
+        cache[today] = remoteData[today];
+        updated = true;
+      }
+      if (updated) saveDouyinCache(cache);
+      // 如果当前在总览页，刷新穿搭卡片
+      if ($('#view-overview')?.classList.contains('active')) {
+        renderOverview();
+      }
+    }
+  }).catch(() => {});
+})();
+
+</script>
+</body>
+</html>

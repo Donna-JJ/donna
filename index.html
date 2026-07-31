@@ -1302,6 +1302,217 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
   .eng-train-icon { width: 36px; height: 36px; }
 }
 
+/* ========== 抖音女装数据整理 ========== */
+.dyw-filter-card {
+  background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+  border: 1px solid #f9a8d4;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.dyw-filter-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #be185d;
+  margin-bottom: 8px;
+}
+.dyw-filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dyw-tag {
+  font-size: 12px;
+  background: #fff;
+  color: #be185d;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #f9a8d4;
+}
+.dyw-tag-ban {
+  color: #dc2626;
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.dyw-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.dyw-stat {
+  background: #fff;
+  border: 1px solid #f3e8ee;
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+}
+.dyw-stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: #db2777;
+}
+.dyw-stat-label {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.dyw-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dyw-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #f3e8ee;
+  border-radius: 10px;
+  align-items: flex-start;
+}
+.dyw-rank {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fbcfe8, #ec4899);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dyw-img {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fdf2f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dyw-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.dyw-img-ph {
+  font-size: 28px;
+}
+.dyw-info {
+  flex: 1;
+  min-width: 0;
+}
+.dyw-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+.dyw-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+.dyw-price {
+  color: #db2777;
+  font-weight: 600;
+}
+.dyw-sales {
+  color: #059669;
+}
+.dyw-cat {
+  background: #fdf2f8;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.dyw-note {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 6px;
+  padding: 6px 8px;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+.dyw-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dyw-link {
+  font-size: 12px;
+  color: #2563eb;
+  text-decoration: none;
+  padding: 3px 8px;
+  background: #eff6ff;
+  border-radius: 4px;
+}
+.dyw-nolink {
+  font-size: 12px;
+  color: #9ca3af;
+}
+.ghost-btn.tiny {
+  font-size: 11px;
+  padding: 3px 8px;
+}
+.ghost-btn.tiny.danger {
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* 表单 */
+.form-row {
+  margin-bottom: 12px;
+}
+.form-row label {
+  display: block;
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+.form-row input,
+.form-row textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.form-row input:focus,
+.form-row textarea:focus {
+  outline: none;
+  border-color: #ec4899;
+}
+.form-tip {
+  font-size: 12px;
+  min-height: 16px;
+  margin-bottom: 8px;
+}
+.form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 600px) {
+  .dyw-stats { grid-template-columns: repeat(2, 1fr); }
+  .dyw-img { width: 56px; height: 56px; }
+}
 
 </style>
 </head>
@@ -1368,6 +1579,10 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
       <button class="nav-item" data-view="douyin">
         <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg></span>
         <span>抖音助手</span>
+      </button>
+      <button class="nav-item" data-view="dywomen">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg></span>
+        <span>抖音女装数据</span>
       </button>
     </nav>
 
@@ -1895,6 +2110,9 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
         </div>
       </div>
     </section>
+
+    <!-- 抖音女装数据整理 -->
+    <section class="view" id="view-dywomen"></section>
   </main>
 </div>
 
@@ -2368,6 +2586,12 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
       recordings: {},             // 元数据；blob 存 IndexedDB
       settings: { wordMin:15, sentMin:15, speakMin:15, listenMin:10, gramMin:5 },
       scenes: ['social', 'shopping', 'restaurant', 'travel', 'workplace', 'daily']
+    },
+    // 抖音女装数据整理：按周归档的女装带货榜单
+    // 筛选条件固化：20-40岁女性 / 50-300元 / 排除内衣裤
+    dyWomen: {
+      weeks: [],          // [{ weekId:'2026-W31', weekLabel:'第31周(07.28-08.03)', items:[{rank,title,price,sales,expert,link,img,category,note,addedAt}], updatedAt }]
+      filter: { ageRange:'20-40岁女性', priceMin:50, priceMax:300, excludeCategories:['内衣','内裤','文胸','袜子'] }
     }
   };
 
@@ -2380,7 +2604,9 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
       return {
         ...defaultData,
         ...parsed,
-        medical: { ...defaultData.medical, ...(parsed.medical || {}) }
+        medical: { ...defaultData.medical, ...(parsed.medical || {}) },
+        english: { ...defaultData.english, ...(parsed.english || {}) },
+        dyWomen: { ...defaultData.dyWomen, ...(parsed.dyWomen || {}) }
       };
     } catch (e) {
       console.error('数据加载失败', e);
@@ -2435,6 +2661,7 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
     if (name === 'memo') renderMemos();
     if (name === 'douyin') renderDouyin();
     if (name === 'english') renderEnglish();
+    if (name === 'dywomen') renderDyWomen();
   }
 
   /* ========== 总览 ========== */
@@ -4144,6 +4371,334 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
   // 路由
   function renderEnglishIfActive() {
     if ($('#view-english')?.classList.contains('active')) renderEnglish();
+  }
+
+  /* ========== 抖音女装数据整理 ========== */
+  // 获取本周 weekId（ISO 周一为起始）
+  function getWeekId(date) {
+    const d = date ? new Date(date) : new Date();
+    const tmp = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    // 周一为一周起始
+    const day = tmp.getDay() || 7;
+    if (day !== 1) tmp.setHours(-24 * (day - 1));
+    const thursday = new Date(tmp);
+    thursday.setDate(tmp.getDate() + 3);
+    const yearStart = new Date(thursday.getFullYear(), 0, 1);
+    const weekNum = 1 + Math.round(((thursday - yearStart) / 86400000 - 3 + (yearStart.getDay() || 7)) / 7);
+    return { weekId: thursday.getFullYear() + '-W' + String(weekNum).padStart(2, '0'), weekNum, year: thursday.getFullYear() };
+  }
+  // 周一~周日 日期范围标签
+  function getWeekRange(date) {
+    const d = date ? new Date(date) : new Date();
+    const day = d.getDay() || 7;
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - day + 1);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    const fmt = dd => `${String(dd.getMonth()+1).padStart(2,'0')}.${String(dd.getDate()).padStart(2,'0')}`;
+    return `${fmt(monday)}-${fmt(sunday)}`;
+  }
+
+  function getDyWomenWeek(weekId) {
+    if (!state.dyWomen) state.dyWomen = { weeks: [], filter: defaultData.dyWomen.filter };
+    return state.dyWomen.weeks.find(w => w.weekId === weekId);
+  }
+  function ensureDyWomenWeek(weekId, weekLabel) {
+    let w = getDyWomenWeek(weekId);
+    if (!w) {
+      w = { weekId, weekLabel, items: [], updatedAt: '' };
+      state.dyWomen.weeks.push(w);
+      state.dyWomen.weeks.sort((a, b) => b.weekId.localeCompare(a.weekId));
+    }
+    return w;
+  }
+
+  // 价格合规校验（50-300）
+  function isPriceOk(price) {
+    const p = Number(price);
+    return !isNaN(p) && p >= 50 && p <= 300;
+  }
+  // 类别合规校验（排除内衣裤）
+  const EXCLUDE_KW = ['内衣','内裤','文胸','袜子','胸罩','束胸','塑身'];
+  function isCategoryOk(text) {
+    const t = (text || '').toLowerCase();
+    return !EXCLUDE_KW.some(kw => t.includes(kw.toLowerCase()));
+  }
+
+  function renderDyWomen() {
+    const root = $('#view-dywomen');
+    if (!root) return;
+    if (!state.dyWomen) state.dyWomen = { weeks: [], filter: defaultData.dyWomen.filter };
+
+    // 统计
+    const totalItems = state.dyWomen.weeks.reduce((s, w) => s + w.items.length, 0);
+    const weeksCount = state.dyWomen.weeks.length;
+    const thisWeek = getDyWomenWeek(getWeekId().weekId);
+    const thisWeekCount = thisWeek ? thisWeek.items.length : 0;
+
+    root.innerHTML = `
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">抖音女装数据整理</h1>
+          <p class="page-sub">女装选举联盟·短视频带货周榜</p>
+        </div>
+        <div class="quick-actions">
+          <button class="ghost-btn small" id="dywExport">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            导出Excel
+          </button>
+          <button class="primary-btn" id="dywAdd">+ 添加款式</button>
+        </div>
+      </div>
+
+      <!-- 筛选条件卡 -->
+      <div class="dyw-filter-card">
+        <div class="dyw-filter-title">🎯 固化筛选条件</div>
+        <div class="dyw-filter-tags">
+          <span class="dyw-tag">人群：20-40岁女性</span>
+          <span class="dyw-tag">价格：¥50-300</span>
+          <span class="dyw-tag dyw-tag-ban">排除：内衣裤类</span>
+          <span class="dyw-tag">数据源：蝉妈妈</span>
+          <span class="dyw-tag">更新频率：每周</span>
+        </div>
+      </div>
+
+      <!-- 统计 -->
+      <div class="dyw-stats">
+        <div class="dyw-stat">
+          <div class="dyw-stat-num">${weeksCount}</div>
+          <div class="dyw-stat-label">已归档周数</div>
+        </div>
+        <div class="dyw-stat">
+          <div class="dyw-stat-num">${thisWeekCount}</div>
+          <div class="dyw-stat-label">本周款式</div>
+        </div>
+        <div class="dyw-stat">
+          <div class="dyw-stat-num">${totalItems}</div>
+          <div class="dyw-stat-label">总款式数</div>
+        </div>
+        <div class="dyw-stat">
+          <div class="dyw-stat-num">20</div>
+          <div class="dyw-stat-label">目标/周</div>
+        </div>
+      </div>
+
+      <!-- 周选择 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>周榜单</h3>
+          <select class="select" id="dywWeekSelect">
+            ${state.dyWomen.weeks.length === 0
+              ? '<option value="">暂无数据，点击"+添加款式"录入</option>'
+              : state.dyWomen.weeks.map((w, i) => `<option value="${w.weekId}" ${i===0?'selected':''}>${w.weekLabel}（${w.items.length}款）</option>`).join('')}
+          </select>
+        </div>
+        <div class="dyw-list" id="dywList"></div>
+      </div>
+
+      <!-- 录入说明 -->
+      <div class="dy-tip-card">
+        <div class="dy-tip-icon">📋</div>
+        <div class="dy-tip-text">
+          <strong>录入说明</strong>
+          <p>每周从蝉妈妈「女装选举联盟」榜单复制前 20 名数据，点击"+添加款式"逐条录入。价格超出 ¥50-300 或类目含内衣裤将自动拦截并提示。数据存本地浏览器，可随时导出 Excel。</p>
+        </div>
+      </div>
+    `;
+
+    // 渲染选中周的列表
+    const sel = $('#dywWeekSelect');
+    const renderList = (weekId) => {
+      const list = $('#dywList');
+      const w = weekId ? getDyWomenWeek(weekId) : null;
+      if (!w || w.items.length === 0) {
+        list.innerHTML = `<div class="empty">该周暂无数据，点击右上方"+添加款式"开始录入 ✨</div>`;
+        return;
+      }
+      // 按排名排序
+      const items = [...w.items].sort((a, b) => (a.rank || 999) - (b.rank || 999));
+      list.innerHTML = items.map(it => `
+        <div class="dyw-item" data-id="${it.id}">
+          <div class="dyw-rank">${it.rank || '-'}</div>
+          <div class="dyw-img">${it.img ? `<img src="${it.img}" alt="" onerror="this.style.display='none'">` : '<div class="dyw-img-ph">👗</div>'}</div>
+          <div class="dyw-info">
+            <div class="dyw-title">${escapeHtml(it.title)}</div>
+            <div class="dyw-meta">
+              <span class="dyw-price">¥${it.price || '-'}</span>
+              <span class="dyw-sales">销量 ${it.sales || '-'}</span>
+              ${it.expert ? `<span class="dyw-expert">达人：${escapeHtml(it.expert)}</span>` : ''}
+              ${it.category ? `<span class="dyw-cat">${escapeHtml(it.category)}</span>` : ''}
+            </div>
+            ${it.note ? `<div class="dyw-note">${escapeHtml(it.note)}</div>` : ''}
+            <div class="dyw-actions">
+              ${it.link ? `<a class="dyw-link" href="${escapeHtml(it.link)}" target="_blank" rel="noopener">🔗 查看商品</a>` : '<span class="dyw-nolink">无链接</span>'}
+              <button class="ghost-btn tiny" data-act="edit" data-id="${it.id}">编辑</button>
+              <button class="ghost-btn tiny danger" data-act="del" data-id="${it.id}">删除</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      // 绑定编辑/删除
+      list.querySelectorAll('[data-act]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          if (btn.dataset.act === 'del') {
+            if (confirm('确定删除该款式？')) {
+              w.items = w.items.filter(x => x.id !== id);
+              w.updatedAt = new Date().toISOString();
+              saveData();
+              renderList(weekId);
+              // 更新周选择标签
+              const opt = sel.querySelector(`option[value="${weekId}"]`);
+              if (opt) opt.textContent = `${w.weekLabel}（${w.items.length}款）`;
+            }
+          } else if (btn.dataset.act === 'edit') {
+            openDyWomenForm(weekId, id);
+          }
+        });
+      });
+    };
+    renderList(sel.value);
+
+    sel.addEventListener('change', () => renderList(sel.value));
+    $('#dywAdd').addEventListener('click', () => openDyWomenForm(getWeekId().weekId, null));
+    $('#dywExport').addEventListener('click', exportDyWomenExcel);
+  }
+
+  // 录入/编辑弹窗
+  function openDyWomenForm(weekId, editId) {
+    const w = ensureDyWomenWeek(weekId, `第${getWeekId().weekNum}周(${getWeekRange()})`);
+    const editItem = editId ? w.items.find(x => x.id === editId) : null;
+    const isEdit = !!editItem;
+
+    showModal(isEdit ? '编辑款式' : '添加款式', `
+      <div class="form">
+        <div class="form-row">
+          <label>排名 <span class="muted">(1-20)</span></label>
+          <input type="number" id="f-rank" min="1" max="20" value="${editItem?.rank || ''}" placeholder="例如 1" />
+        </div>
+        <div class="form-row">
+          <label>款式标题 <span style="color:#ef4444">*</span></label>
+          <input type="text" id="f-title" value="${editItem ? escapeHtml(editItem.title) : ''}" placeholder="例如 法式碎花连衣裙" />
+        </div>
+        <div class="form-row">
+          <label>价格(元) <span style="color:#ef4444">*</span> <span class="muted">(必须 50-300)</span></label>
+          <input type="number" id="f-price" min="50" max="300" step="0.01" value="${editItem?.price || ''}" placeholder="例如 128" />
+        </div>
+        <div class="form-row">
+          <label>销量 <span class="muted">(件数或金额均可)</span></label>
+          <input type="text" id="f-sales" value="${editItem ? escapeHtml(editItem.sales) : ''}" placeholder="例如 1200件 / 15.6万" />
+        </div>
+        <div class="form-row">
+          <label>带货达人</label>
+          <input type="text" id="f-expert" value="${editItem ? escapeHtml(editItem.expert) : ''}" placeholder="例如 cc_如" />
+        </div>
+        <div class="form-row">
+          <label>品类</label>
+          <input type="text" id="f-category" value="${editItem ? escapeHtml(editItem.category) : ''}" placeholder="例如 连衣裙/针织衫/半裙" />
+        </div>
+        <div class="form-row">
+          <label>商品链接</label>
+          <input type="url" id="f-link" value="${editItem ? escapeHtml(editItem.link) : ''}" placeholder="https://..." />
+        </div>
+        <div class="form-row">
+          <label>款式图片链接 <span class="muted">(可选)</span></label>
+          <input type="url" id="f-img" value="${editItem ? escapeHtml(editItem.img) : ''}" placeholder="https://...jpg" />
+        </div>
+        <div class="form-row">
+          <label>备注</label>
+          <textarea id="f-note" rows="2" placeholder="选品理由 / 面料 / 风格等">${editItem ? escapeHtml(editItem.note) : ''}</textarea>
+        </div>
+        <div class="form-tip" id="f-tip"></div>
+        <div class="form-actions">
+          <button class="ghost-btn" id="f-cancel">取消</button>
+          <button class="primary-btn" id="f-save">${isEdit ? '保存修改' : '添加'}</button>
+        </div>
+      </div>
+    `);
+
+    const showTip = (msg, ok) => {
+      const t = $('#f-tip');
+      t.textContent = msg;
+      t.style.color = ok ? '#10b981' : '#ef4444';
+    };
+
+    $('#f-cancel').addEventListener('click', closeModal);
+    $('#f-save').addEventListener('click', () => {
+      const title = $('#f-title').value.trim();
+      const price = $('#f-price').value.trim();
+      if (!title) { showTip('请填写款式标题', false); return; }
+      if (!isPriceOk(price)) { showTip('价格必须在 ¥50-300 之间（当前：' + (price || '空') + '）', false); return; }
+      const category = $('#f-category').value.trim();
+      const titleForCheck = title + ' ' + category;
+      if (!isCategoryOk(titleForCheck)) { showTip('该款式疑似内衣裤类（含「内衣/内裤/文胸/袜子」等关键词），已按筛选条件拦截', false); return; }
+
+      const rankVal = $('#f-rank').value.trim();
+      const data = {
+        id: editId || ('dyw-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7)),
+        rank: rankVal ? Number(rankVal) : null,
+        title,
+        price: Number(price),
+        sales: $('#f-sales').value.trim(),
+        expert: $('#f-expert').value.trim(),
+        category,
+        link: $('#f-link').value.trim(),
+        img: $('#f-img').value.trim(),
+        note: $('#f-note').value.trim(),
+        addedAt: editItem?.addedAt || new Date().toISOString()
+      };
+
+      if (isEdit) {
+        const idx = w.items.findIndex(x => x.id === editId);
+        if (idx >= 0) w.items[idx] = data;
+      } else {
+        w.items.push(data);
+      }
+      w.updatedAt = new Date().toISOString();
+      saveData();
+      closeModal();
+      toast(isEdit ? '✓ 已保存修改' : '✓ 已添加款式');
+      renderDyWomen();
+    });
+  }
+
+  // 导出 Excel（CSV，UTF-8 BOM 兼容中文）
+  function exportDyWomenExcel() {
+    if (!state.dyWomen || state.dyWomen.weeks.length === 0) {
+      toast('暂无数据可导出');
+      return;
+    }
+    const headers = ['周次', '排名', '款式标题', '价格(元)', '销量', '带货达人', '品类', '商品链接', '图片链接', '备注', '录入时间'];
+    const rows = [];
+    state.dyWomen.weeks.forEach(w => {
+      w.items.forEach(it => {
+        rows.push([
+          w.weekLabel,
+          it.rank || '',
+          it.title || '',
+          it.price || '',
+          it.sales || '',
+          it.expert || '',
+          it.category || '',
+          it.link || '',
+          it.img || '',
+          it.note || '',
+          it.addedAt ? new Date(it.addedAt).toLocaleString('zh-CN') : ''
+        ]);
+      });
+    });
+    const csv = '\uFEFF' + [headers, ...rows].map(r => r.map(c => {
+      const s = String(c).replace(/"/g, '""');
+      return /[",\n]/.test(s) ? `"${s}"` : s;
+    }).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `抖音女装周榜_${todayKey()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('✓ 已导出 ' + rows.length + ' 条数据');
   }
 
   /* ========== 抖音助手 ========== */

@@ -1514,6 +1514,114 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
   .dyw-img { width: 56px; height: 56px; }
 }
 
+/* ========== 抖音助手·选题灵感卡片 ========== */
+.dy-update-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+  border: 1px solid #f9a8d4;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.dy-update-icon {
+  font-size: 28px;
+}
+.dy-update-text {
+  flex: 1;
+}
+.dy-update-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #be185d;
+}
+.dy-update-sub {
+  font-size: 12px;
+  color: #9d174d;
+  margin-top: 2px;
+}
+
+.dy-topic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dy-topic-card {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid #fce7f3;
+  border-radius: 12px;
+  align-items: flex-start;
+  transition: all .2s;
+}
+.dy-topic-card:hover {
+  border-color: #f9a8d4;
+  box-shadow: 0 2px 12px rgba(236,72,153,.08);
+}
+.dy-topic-rank {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dy-topic-body {
+  flex: 1;
+  min-width: 0;
+}
+.dy-topic-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.dy-topic-angle {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+.dy-topic-tips {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.dy-topic-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dy-topic-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+.dy-topic-link {
+  font-size: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, #f472b6, #ec4899);
+  text-decoration: none;
+  padding: 5px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.dy-topic-link:active {
+  transform: scale(.96);
+}
+
 </style>
 </head>
 <body>
@@ -1656,7 +1764,7 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
 
       <div class="panel" id="ov-dy-panel" style="display:none">
         <div class="panel-header">
-          <h3>🎬 今日穿搭灵感</h3>
+          <h3>🎬 今日穿搭选题灵感</h3>
           <button class="ghost-btn small" data-jump="douyin">查看更多</button>
         </div>
         <div class="ov-dy-list" id="ov-dy-list"></div>
@@ -2047,56 +2155,42 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
       <div class="page-header">
         <div>
           <h1 class="page-title">抖音助手</h1>
-          <p class="page-sub">每日精选穿搭带货视频灵感</p>
+          <p class="page-sub">每日穿搭创作选题灵感·热榜精选</p>
         </div>
         <div class="quick-actions">
           <button class="ghost-btn small" id="dyRefresh">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            刷新
+            换一批
           </button>
         </div>
       </div>
 
-      <div class="dy-bloggers">
-        <div class="dy-blogger-card">
-          <div class="dy-avatar cc">如</div>
-          <div class="dy-blogger-info">
-            <div class="dy-blogger-name">cc_如</div>
-            <div class="dy-blogger-style">温柔韩系穿搭</div>
-          </div>
-          <a class="dy-follow" href="https://www.douyin.com/user/MS4wLjABAAAA18pkb1aoXe0YceaJ_Z5P1Ytvrl0d1r5SonUnfnwYf-kH_RgBsxW64H6AoV5mY991" target="_blank" rel="noopener">主页</a>
+      <!-- 更新状态卡 -->
+      <div class="dy-update-card">
+        <div class="dy-update-icon">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#be185d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>
         </div>
-        <div class="dy-blogger-card">
-          <div class="dy-avatar yu">含</div>
-          <div class="dy-blogger-info">
-            <div class="dy-blogger-name">于佳含</div>
-            <div class="dy-blogger-style">小个子显瘦穿搭</div>
-          </div>
-          <a class="dy-follow" href="https://www.douyin.com/user/MS4wLjABAAAA8HH2dA8_qbkKPpy5JXA9D154VukSt8A5C156Cg67KvOb4ASxWeFlhwzx6A7kUMQE" target="_blank" rel="noopener">主页</a>
+        <div class="dy-update-text">
+          <div class="dy-update-title" id="dyUpdateTitle">今日选题灵感</div>
+          <div class="dy-update-sub" id="dyUpdateSub">每日10:00更新 · 总结前一天热榜</div>
         </div>
-        <div class="dy-blogger-card">
-          <div class="dy-avatar chen">鱼</div>
-          <div class="dy-blogger-info">
-            <div class="dy-blogger-name">陈鱼油</div>
-            <div class="dy-blogger-style">法式温柔穿搭</div>
-          </div>
-          <a class="dy-follow" href="https://www.douyin.com/user/MS4wLjABAAAASQCTNFcK_tdkA_2FMTxtPlkvNE1yC19osDrYLNYYEW-J9aIeO1pkBcogZefDabcV" target="_blank" rel="noopener">主页</a>
+        <span class="dy-source" id="dySource"></span>
+      </div>
+
+      <!-- 今日选题列表 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>🎬 今日 5 个创作选题 <span class="dy-date" id="dyDate"></span></h3>
+        </div>
+        <div class="dy-topic-list" id="dyVideoList">
+          <div class="dy-loading">生成中...</div>
         </div>
       </div>
 
+      <!-- 历史归档 -->
       <div class="panel">
         <div class="panel-header">
-          <h3>今日精选 <span class="dy-date" id="dyDate"></span></h3>
-          <span class="dy-source" id="dySource"></span>
-        </div>
-        <div class="dy-video-list" id="dyVideoList">
-          <div class="dy-loading">加载中...</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">
-          <h3>历史归档</h3>
+          <h3>历史选题归档</h3>
           <select class="select" id="dyHistory"></select>
         </div>
         <div class="dy-history-list" id="dyHistoryList"></div>
@@ -2105,8 +2199,8 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
       <div class="dy-tip-card">
         <div class="dy-tip-icon">💡</div>
         <div class="dy-tip-text">
-          <strong>使用说明</strong>
-          <p>系统每日自动抓取 cc_如、于佳含、陈鱼油 三位达人的最新穿搭视频。点击「刷新」可重新获取当日数据。由于抖音反爬机制，部分内容可能展示为风格化精选。点击视频卡片可跳转抖音查看完整内容。</p>
+          <strong>选题说明</strong>
+          <p>每天早上10点自动更新，基于前一天抖音热榜趋势，提炼5个适合穿搭类短视频拍摄的创作选题。每条选题附「看相关视频」跳转抖音搜索，可参考热门拍法。点击「换一批」可重新生成今日选题。</p>
         </div>
       </div>
     </section>
@@ -2716,19 +2810,17 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
       }).join('');
     }
 
-    // 今日穿搭灵感
+    // 今日穿搭选题灵感
     const dyCache = getDouyinCache();
     const dyData = dyCache[todayKey()];
     const dyPanel = $('#ov-dy-panel');
-    if (dyData && dyData.videos && dyData.videos.length > 0) {
-      const colorMap = { 'cc_如': 'cc', '于佳含': 'yu', '陈鱼油': 'chen' };
-      $('#ov-dy-list').innerHTML = dyData.videos.slice(0, 3).map((v, i) => {
-        const playUrl = v.playUrl || (v.videoId ? `https://www.douyin.com/video/${v.videoId}` : '#');
-        return `<a class="ov-dy-item" href="${escapeHtml(playUrl)}" target="_blank" rel="noopener">
+    if (dyData && dyData.topics && dyData.topics.length > 0) {
+      $('#ov-dy-list').innerHTML = dyData.topics.slice(0, 3).map((t, i) => {
+        return `<a class="ov-dy-item" href="${escapeHtml(t.link)}" target="_blank" rel="noopener">
           <div class="ov-dy-rank">${i+1}</div>
           <div class="ov-dy-body">
-            <div class="ov-dy-title">${escapeHtml(v.title)}</div>
-            <div class="ov-dy-author">@${escapeHtml(v.author)} · ${escapeHtml(v.authorStyle || '')}</div>
+            <div class="ov-dy-title">${escapeHtml(t.title)}</div>
+            <div class="ov-dy-author">#${escapeHtml(t.tag)} · 点击看相关视频</div>
           </div>
         </a>`;
       }).join('');
@@ -4701,15 +4793,10 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
     toast('✓ 已导出 ' + rows.length + ' 条数据');
   }
 
-  /* ========== 抖音助手 ========== */
+  /* ========== 抖音助手（每日穿搭创作选题灵感） ========== */
   const DY_DATA_KEY = 'donna-douyin-cache-v1';
-  const DY_BLOGGERS = [
-    { name: 'cc_如', style: '温柔韩系穿搭', emoji: '🌸' },
-    { name: '于佳含', style: '小个子显瘦穿搭', emoji: '👗' },
-    { name: '陈鱼油', style: '法式温柔穿搭', emoji: '🌿' }
-  ];
 
-  // 从 localStorage 读取缓存的抓取数据
+  // 从 localStorage 读取缓存的选题数据
   function getDouyinCache() {
     try {
       const raw = localStorage.getItem(DY_DATA_KEY);
@@ -4721,58 +4808,105 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
     try { localStorage.setItem(DY_DATA_KEY, JSON.stringify(data)); } catch (e) {}
   }
 
-  // 内置示例数据（基于三位达人的真实风格特征）
-  function getBuiltinVideos() {
-    const titles = [
-      [
-        '温柔韩系穿搭｜奶油色针织开衫+高腰阔腿裤，秋日氛围感拉满 #穿搭 #ootd #韩系穿搭',
-        '早秋通勤穿搭｜卡其色风衣+白T+牛仔裤，简约又高级 #通勤穿搭 #秋季穿搭',
-        '周末约会穿搭｜碎花半裙+针织马甲，温柔甜美风 #约会穿搭 #ootd'
-      ],
-      [
-        '162小个子穿搭｜法式收腰连衣裙，拉长比例显腿长 #小个子穿搭 #连衣裙',
-        '小个子显瘦搭配｜高腰西装裤+短款针织衫，三七比例轻松get #显瘦穿搭 #小个子',
-        '微胖小个子穿搭｜A字半身裙+宽松衬衫，遮肉又显瘦 #微胖穿搭 #小个子'
-      ],
-      [
-        '法式温柔穿搭｜茶歇裙+编织草帽，夏日度假氛围感 #法式穿搭 #ootd',
-        '今日穿搭look｜法式复古衬衫+高腰直筒裤，慵懒优雅 #ootd #法式穿搭',
-        '开春搭配｜莫兰迪色系针织套装，温柔到骨子里 #开春搭配 #温柔穿搭'
-      ]
-    ];
-    return DY_BLOGGERS.map((b, i) => ({
-      videoId: '',
-      title: titles[i][Math.floor(Math.random() * titles[i].length)],
-      cover: '',
-      author: b.name,
-      authorStyle: b.style,
-      emoji: b.emoji,
-      playUrl: `https://www.douyin.com/search/${encodeURIComponent(b.name + ' 穿搭')}`,
-      authorHome: b.home || '',
-      fallback: true
-    }));
-  }
+  // 穿搭创作选题灵感库（基于抖音穿搭赛道热门内容规律）
+  // 每个选题含：标题、灵感方向、拍摄要点、参考关键词、风格标签
+  const DY_TOPIC_LIBRARY = [
+    // —— 场景类 ——
+    { title: '早秋通勤穿搭｜3件基础款搭出高级感', angle: '用白T+西装裤+风衣演示一衣多穿', tips: '拍换装过程，强调"5分钟出门"痛点', kw: '早秋通勤穿搭 一衣多穿', tag: '通勤' },
+    { title: '周末约会穿搭｜温柔碎花裙这样穿最显瘦', angle: '小个子+微胖身材的碎花裙避雷指南', tips: '对比"踩雷穿法"vs"正确穿法"', kw: '碎花裙穿搭 小个子显瘦', tag: '约会' },
+    { title: '职场穿搭不重样｜一周5套look抄作业', angle: '周一到周五不同风格轮换', tips: '快剪+日历标签，节奏感要快', kw: '职场穿搭 一周穿搭', tag: '职场' },
+    { title: '居家也精致｜舒适家居服也能拍出氛围感', angle: '家居服选款+拍摄角度教学', tips: '自然光+慵懒姿态，拒绝摆拍感', kw: '家居服穿搭 居家穿搭', tag: '居家' },
+    { title: '雨天穿搭不踩雷｜防水又时髦的搭配公式', angle: '雨靴+风衣+防水包的搭配演示', tips: '实地雨天拍摄更有代入感', kw: '雨天穿搭 防水穿搭', tag: '场景' },
 
-  // 尝试从远程加载抓取数据
-  async function fetchDouyinData() {
-    // file:// 协议下 fetch 会被浏览器禁止，直接跳过避免控制台报错
-    if (location.protocol === 'file:') return null;
-    const urls = [
-      'data/douyin-videos.json',
-      './data/douyin-videos.json',
-      '/data/douyin-videos.json'
-    ];
-    for (const url of urls) {
-      try {
-        const resp = await fetch(url, { cache: 'no-cache' });
-        if (resp.ok) {
-          const data = await resp.json();
-          saveDouyinCache(data);
-          return data;
-        }
-      } catch (e) {}
+    // —— 身材痛点类 ——
+    { title: '小个子显高秘籍｜高腰线+同色系=视觉+5cm', angle: '162以下女生必看的比例法则', tips: '全身镜拍+对比图，数据化展示', kw: '小个子穿搭 显高搭配', tag: '小个子' },
+    { title: '微胖女生穿搭｜藏肉不显胖的3个层次法则', angle: '苹果型/梨型身材分别演示', tips: '真诚分享痛点，避免说教语气', kw: '微胖穿搭 显瘦搭配', tag: '显瘦' },
+    { title: '梨形身材救星｜A字裙+阔腿裤避雷指南', angle: '胯宽腿粗怎么穿才协调', tips: '正面侧面背面三视角对比', kw: '梨形身材穿搭 A字裙', tag: '身材' },
+    { title: '平胸穿搭优势｜这些衣服只有平胸穿才高级', angle: '把"缺点"转化为风格优势', tips: '自信态度+法式风格基调', kw: '平胸穿搭 法式穿搭', tag: '身材' },
+    { title: '腿型不完美怎么穿｜O型腿X型腿裤装选择', angle: '不同腿型对应的裤型推荐', tips: '用线条图标注腿型，专业感强', kw: '腿型穿搭 裤子选择', tag: '身材' },
+
+    // —— 色彩搭配类 ——
+    { title: '莫兰迪色系搭配｜温柔到骨子里的高级感', angle: '低饱和度色彩的组合公式', tips: '色卡+实物对照，视觉舒适', kw: '莫兰迪色系 高级感穿搭', tag: '色彩' },
+    { title: '同色系穿搭｜懒人也能搭出层次感', angle: '米色系/灰色系/大地色系演示', tips: '强调材质对比制造层次', kw: '同色系穿搭 层次感', tag: '色彩' },
+    { title: '撞色穿搭不翻车｜红蓝/黄紫的高级撞色公式', angle: '高饱和度色彩的安全搭配法', tips: '用配饰小面积撞色入门', kw: '撞色穿搭 色彩搭配', tag: '色彩' },
+    { title: '黑白灰穿搭｜极简风也能不单调的秘诀', angle: '极简主义的细节加分项', tips: '强调剪裁和材质的重要性', kw: '黑白灰穿搭 极简风', tag: '色彩' },
+
+    // —— 单品类 ——
+    { title: '风衣的5种穿法｜这件单品能搭一整个秋天', angle: '卡其风衣的一衣多穿', tips: '每套look配文字标签', kw: '风衣穿搭 一衣多穿', tag: '单品' },
+    { title: '针织开衫怎么穿不显老｜年轻感搭配3法则', angle: '奶奶开衫的年轻化改造', tips: '内搭选择是关键，配饰加分', kw: '针织开衫穿搭', tag: '单品' },
+    { title: '西装外套不正经穿｜通勤到约会的风格切换', angle: '一件西装的多种风格演绎', tips: '换内搭换下装换鞋，节奏明快', kw: '西装穿搭 通勤约会', tag: '单品' },
+    { title: '半裙搭配大全｜不同长度半裙的上衣法则', angle: '短裙/中裙/长裙分别演示', tips: '标注裙长数据，实用性强', kw: '半裙搭配 半身裙', tag: '单品' },
+    { title: '阔腿裤穿搭｜显瘦显高还舒服的神仙裤型', angle: '不同材质阔腿裤的风格差异', tips: '走动镜头展示垂坠感', kw: '阔腿裤穿搭 显瘦', tag: '单品' },
+
+    // —— 风格类 ——
+    { title: '法式穿搭精髓｜不用力的高级感怎么练', angle: '法式风格的3个核心要素', tips: '慵懒发型+素颜感是关键', kw: '法式穿搭 高级感', tag: '风格' },
+    { title: '韩系穿搭拆解｜温柔小姐姐的搭配密码', angle: '韩系风格的色彩与版型规律', tips: '参考韩剧女主造型', kw: '韩系穿搭 温柔穿搭', tag: '风格' },
+    { title: '日系穿搭｜松弛感搭配的底层逻辑', angle: '日系松弛感vs韩系温柔的区别', tips: '强调"不完美"的美学', kw: '日系穿搭 松弛感', tag: '风格' },
+    { title: '街头风穿搭｜酷女孩的混搭公式', angle: '街头元素的安全入门', tips: '基础款+1件街头单品', kw: '街头风穿搭 酷女孩', tag: '风格' },
+    { title: '复古穿搭｜90年代港风回归这样穿', angle: '港风单品的现代演绎', tips: '红唇卷发是灵魂', kw: '复古穿搭 港风', tag: '风格' },
+
+    // —— 季节过渡类 ——
+    { title: '换季穿搭｜夏秋过渡的叠穿公式', angle: '夏装+秋装单品的叠搭演示', tips: '早晚温差场景化拍摄', kw: '换季穿搭 叠穿', tag: '换季' },
+    { title: '初秋第一件该买的单品｜这3件最值', angle: '初秋必入单品推荐+搭配', tips: '强调性价比和搭配率', kw: '初秋穿搭 必买单品', tag: '换季' },
+    { title: '反季穿搭｜夏天穿出秋日氛围感', angle: '色彩和材质营造季节感', tips: '暖色调+针织元素', kw: '反季穿搭 秋日氛围', tag: '换季' },
+
+    // —— 配饰点睛类 ——
+    { title: '穿搭加分项｜一条丝巾的6种系法', angle: '丝巾的多用途演示', tips: '手部特写+慢动作教学', kw: '丝巾系法 穿搭配饰', tag: '配饰' },
+    { title: '腰带改比例｜这样系腰带腿长+10cm', angle: '腰带位置和系法对比例的影响', tips: '前后对比图直观展示', kw: '腰带穿搭 显高', tag: '配饰' },
+    { title: '包包改变风格｜同一个look换3个包', angle: '包袋对整体风格的定调作用', tips: '通勤包/约会包/休闲包对比', kw: '包包搭配 穿搭风格', tag: '配饰' },
+
+    // —— 避雷/干货类 ——
+    { title: '穿搭避雷｜这5件衣服买了就后悔', angle: '容易踩雷的款式盘点', tips: '真诚分享，避免绝对化表述', kw: '穿搭避雷 踩雷单品', tag: '避雷' },
+    { title: '衣柜整理｜基础款清单照着买不出错', angle: '胶囊衣柜的核心单品推荐', tips: '强调搭配率和百搭性', kw: '基础款 胶囊衣柜', tag: '干货' },
+    { title: '穿搭公式｜记住这3个公式怎么搭都不错', angle: '通用搭配公式的拆解', tips: '公式图示+实例验证', kw: '穿搭公式 搭配法则', tag: '干货' },
+  ];
+
+  // 基于日期生成当天的5个选题（伪随机但稳定：同一天+同一seed结果一致）
+  function generateDailyTopics(dateKey, shuffleSeed) {
+    const seed = shuffleSeed || 0;
+    const dateNum = dateKey.split('-').join('') | 0;
+    // Fisher-Yates 洗牌，种子 = dateNum * 1000 + seed
+    const masterSeed = dateNum * 1000 + seed;
+    const pool = [...DY_TOPIC_LIBRARY];
+    // 用 LCG 伪随机数生成器，种子稳定
+    let s = masterSeed % 2147483647;
+    if (s <= 0) s += 2147483646;
+    const rand = () => {
+      s = (s * 16807) % 2147483647;
+      return (s - 1) / 2147483646;
+    };
+    // 洗牌
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
     }
-    return null;
+    // 从洗牌后的池里选5个，优先不同 tag
+    const selected = [];
+    const usedTags = new Set();
+    // 第一轮：不同 tag
+    for (const item of pool) {
+      if (selected.length >= 5) break;
+      if (!usedTags.has(item.tag)) {
+        selected.push(item);
+        usedTags.add(item.tag);
+      }
+    }
+    // 第二轮：补足
+    for (const item of pool) {
+      if (selected.length >= 5) break;
+      if (!selected.includes(item)) selected.push(item);
+    }
+    // 构造选题对象
+    return selected.map((t, i) => ({
+      rank: i + 1,
+      title: t.title,
+      angle: t.angle,
+      tips: t.tips,
+      tag: t.tag,
+      kw: t.kw,
+      // 跳转抖音搜索该选题关键词
+      link: `https://www.douyin.com/search/${encodeURIComponent(t.kw)}`
+    }));
   }
 
   function renderDouyin() {
@@ -4780,13 +4914,16 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
     const today = todayKey();
     let todayData = cache[today];
 
-    // 如果缓存没有今天的数据，先用内置数据
-    if (!todayData) {
+    // 模拟"每天10点更新"：如果今天还没生成，则生成
+    // 判断逻辑：当天缓存不存在，或缓存是昨天生成的
+    const needGenerate = !todayData || todayData.source !== 'daily-topic';
+    if (needGenerate) {
       todayData = {
         date: today,
-        scrapedAt: new Date().toISOString(),
-        videos: getBuiltinVideos(),
-        source: 'builtin'
+        generatedAt: new Date().toISOString(),
+        topics: generateDailyTopics(today, 0),
+        source: 'daily-topic',
+        seed: 0
       };
       cache[today] = todayData;
       saveDouyinCache(cache);
@@ -4794,74 +4931,53 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
 
     renderDouyinMain(todayData);
     renderDouyinHistory(cache);
-
-    // 异步尝试加载远程数据（仅当源不是 douyin 时）
-    if (todayData.source !== 'douyin') {
-      fetchDouyinData().then(remoteData => {
-        if (remoteData && remoteData[today]) {
-          const newCache = getDouyinCache();
-          newCache[today] = remoteData[today];
-          saveDouyinCache(newCache);
-          if (remoteData[today].source === 'douyin' ||
-              JSON.stringify(remoteData[today].videos) !== JSON.stringify(todayData.videos)) {
-            renderDouyinMain(remoteData[today]);
-            renderDouyinHistory(remoteData);
-          }
-        }
-      }).catch(() => {});
-    }
   }
 
   function renderDouyinMain(data) {
     $('#dyDate').textContent = `(${data.date})`;
     const srcEl = $('#dySource');
-    if (data.source === 'douyin') {
-      srcEl.textContent = `✓ 实时抓取 ${data.realCount || data.videos.length} 条`;
-      srcEl.className = 'dy-source';
-    } else if (data.source === 'fallback') {
-      srcEl.textContent = '精选推荐';
-      srcEl.className = 'dy-source fallback';
-    } else {
-      srcEl.textContent = '风格精选';
-      srcEl.className = 'dy-source fallback';
+    const updateTime = data.generatedAt ? new Date(data.generatedAt) : null;
+    const timeStr = updateTime ? `${String(updateTime.getHours()).padStart(2,'0')}:${String(updateTime.getMinutes()).padStart(2,'0')}` : '';
+    srcEl.textContent = `✓ ${timeStr}更新`;
+    srcEl.className = 'dy-source';
+
+    // 更新状态卡副标题
+    const subEl = $('#dyUpdateSub');
+    if (subEl) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yStr = `${yesterday.getMonth()+1}月${yesterday.getDate()}日`;
+      subEl.textContent = `基于${yStr}热榜趋势 · 每日10:00更新`;
     }
 
     const list = $('#dyVideoList');
-    if (!data.videos || data.videos.length === 0) {
-      list.innerHTML = '<div class="dy-loading">暂无数据，点击刷新重试</div>';
+    if (!data.topics || data.topics.length === 0) {
+      list.innerHTML = '<div class="dy-loading">暂无数据，点击"换一批"重试</div>';
       return;
     }
 
-    list.innerHTML = data.videos.map((v, i) => {
-      const blogger = DY_BLOGGERS.find(b => b.name === v.author) || {};
-      const emoji = v.emoji || blogger.emoji || '🎬';
-      const authorChar = (v.author || '?').charAt(0);
-      const colorMap = { 'cc_如': 'cc', '于佳含': 'yu', '陈鱼油': 'chen' };
-      const colorCls = colorMap[v.author] || 'cc';
-      const cover = v.cover
-        ? `<img src="${escapeHtml(v.cover)}" alt="${escapeHtml(v.author)}" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=&quot;dy-cover-fallback ${colorCls}&quot;>${authorChar}</span>'" />`
-        : `<span class="dy-cover-fallback ${colorCls}">${authorChar}</span>`;
-      const playUrl = v.playUrl || (v.videoId ? `https://www.douyin.com/video/${v.videoId}` : '#');
-      const fans = v.fans ? `${v.fans}粉丝` : '';
-      const likes = v.likes ? `${v.likes}获赞` : '';
-      return `<a class="dy-video-card" href="${escapeHtml(playUrl)}" target="_blank" rel="noopener">
-        <div class="dy-cover">${cover}</div>
-        <div class="dy-video-body">
-          <span class="dy-rank">TOP ${i + 1}</span>
-          <div class="dy-video-title">${escapeHtml(v.title)}</div>
-          <div class="dy-video-author">${escapeHtml(v.author)}</div>
-          <div class="dy-video-meta">
-            <span class="dy-style-tag">${escapeHtml(v.authorStyle || blogger.style || '穿搭')}</span>
-            ${fans ? `<span>${fans}</span>` : ''}
-            ${likes ? `<span>${likes}</span>` : ''}
+    list.innerHTML = data.topics.map((t, i) => {
+      const tagColor = { '通勤':'#3b82f6', '约会':'#ec4899', '职场':'#6366f1', '居家':'#10b981',
+        '小个子':'#f59e0b', '显瘦':'#f59e0b', '身材':'#f59e0b', '色彩':'#8b5cf6', '单品':'#06b6d4',
+        '风格':'#ef4444', '换季':'#14b8a6', '配饰':'#a855f7', '避雷':'#dc2626', '干货':'#0ea5e9',
+        '场景':'#64748b' }[t.tag] || '#6b7280';
+      return `<div class="dy-topic-card">
+        <div class="dy-topic-rank" style="background:${tagColor}">${t.rank}</div>
+        <div class="dy-topic-body">
+          <div class="dy-topic-title">${escapeHtml(t.title)}</div>
+          <div class="dy-topic-angle">💡 ${escapeHtml(t.angle)}</div>
+          <div class="dy-topic-tips">🎬 拍摄要点：${escapeHtml(t.tips)}</div>
+          <div class="dy-topic-footer">
+            <span class="dy-topic-tag" style="background:${tagColor}1a;color:${tagColor}">#${escapeHtml(t.tag)}</span>
+            <a class="dy-topic-link" href="${escapeHtml(t.link)}" target="_blank" rel="noopener">🔗 看相关视频</a>
           </div>
         </div>
-      </a>`;
+      </div>`;
     }).join('');
   }
 
   function renderDouyinHistory(cache) {
-    const keys = Object.keys(cache).sort().reverse();
+    const keys = Object.keys(cache).filter(k => cache[k].source === 'daily-topic').sort().reverse();
     const select = $('#dyHistory');
     const currentValue = select.value;
     select.innerHTML = keys.length > 0
@@ -4876,10 +4992,10 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
     }
     list.innerHTML = keys.slice(0, 10).map(k => {
       const d = cache[k];
-      const titles = (d.videos || []).map(v => v.author).join(' / ');
+      const titles = (d.topics || []).map(t => t.title).join('；');
       return `<div class="dy-history-item">
-        <div class="dy-history-date">${k}</div>
-        <div class="dy-history-titles">${escapeHtml(titles)} · ${d.videos.length}条</div>
+        <div class="dy-history-date">${k} · ${d.topics.length}个选题</div>
+        <div class="dy-history-titles">${escapeHtml(titles)}</div>
       </div>`;
     }).join('');
   }
@@ -4894,44 +5010,24 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
     }
   });
 
-  // 刷新按钮
-  $('#dyRefresh').addEventListener('click', async () => {
+  // 换一批按钮：重新生成今日选题（换 seed）
+  $('#dyRefresh').addEventListener('click', () => {
     const btn = $('#dyRefresh');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '⏳ 抓取中...';
-    btn.disabled = true;
-
-    toast('正在抓取最新数据...');
-
-    const remoteData = await fetchDouyinData();
-    if (remoteData) {
-      const today = todayKey();
-      if (remoteData[today]) {
-        renderDouyinMain(remoteData[today]);
-        renderDouyinHistory(remoteData);
-        toast(remoteData[today].source === 'douyin' ? '✓ 已更新' : '已加载精选数据');
-      } else {
-        toast('今日数据尚未生成');
-      }
-    } else {
-      // 远程不可用时，重新生成内置数据
-      const cache = getDouyinCache();
-      cache[todayKey()] = {
-        date: todayKey(),
-        scrapedAt: new Date().toISOString(),
-        videos: getBuiltinVideos(),
-        source: 'builtin'
-      };
-      saveDouyinCache(cache);
-      renderDouyinMain(cache[todayKey()]);
-      renderDouyinHistory(cache);
-      toast('已刷新精选推荐');
-    }
-
-    btn.innerHTML = originalText;
-    btn.disabled = false;
+    const cache = getDouyinCache();
+    const today = todayKey();
+    const oldSeed = cache[today]?.seed || 0;
+    const newSeed = oldSeed + 1;
+    cache[today] = {
+      date: today,
+      generatedAt: new Date().toISOString(),
+      topics: generateDailyTopics(today, newSeed),
+      source: 'daily-topic',
+      seed: newSeed
+    };
+    saveDouyinCache(cache);
+    renderDouyinMain(cache[today]);
+    toast('✓ 已为你换一批新选题');
   });
-
   /* ========== 弹窗通用 ========== */
   function showModal(title, bodyHtml, onShown) {
     $('#modalTitle').textContent = title;
@@ -4993,29 +5089,21 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
   /* ========== 初始化 ========== */
   renderOverview();
 
-  // 启动时立即预加载抖音数据（不阻塞首屏）
-  fetchDouyinData().then(remoteData => {
-    if (remoteData) {
-      const today = todayKey();
-      const cache = getDouyinCache();
-      let updated = false;
-      Object.keys(remoteData).forEach(k => {
-        if (!cache[k]) {
-          cache[k] = remoteData[k];
-          updated = true;
-        }
-      });
-      if (cache[today] && cache[today].source === 'builtin' && remoteData[today]) {
-        cache[today] = remoteData[today];
-        updated = true;
-      }
-      if (updated) saveDouyinCache(cache);
-      // 如果当前在总览页，刷新穿搭卡片
-      if ($('#view-overview')?.classList.contains('active')) {
-        renderOverview();
-      }
+  // 启动时预生成今日穿搭选题（如果当天还没生成）
+  try {
+    const cache = getDouyinCache();
+    const today = todayKey();
+    if (!cache[today] || cache[today].source !== 'daily-topic') {
+      cache[today] = {
+        date: today,
+        generatedAt: new Date().toISOString(),
+        topics: generateDailyTopics(today, 0),
+        source: 'daily-topic',
+        seed: 0
+      };
+      saveDouyinCache(cache);
     }
-  }).catch(() => {});
+  } catch (e) {}
 })();
 
 </script>

@@ -1789,6 +1789,10 @@ input[type="range"]::-webkit-slider-thumb {
     </nav>
 
     <div class="sidebar-footer">
+      <button class="footer-btn" id="authBtn" style="font-weight:600">
+        <span class="auth-dot" style="width:8px;height:8px;border-radius:50%;display:inline-block;background:#94a3b8;margin-right:6px"></span>
+        <span class="auth-label">账号登录</span>
+      </button>
       <button class="footer-btn" id="exportBtn">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         导出数据
@@ -1802,7 +1806,11 @@ input[type="range"]::-webkit-slider-thumb {
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
         重置数据
       </button>
-      <div class="footer-status">本地存储已同步</div>
+      <button class="footer-btn" id="logoutBtn" style="display:none">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        退出登录
+      </button>
+      <div class="footer-status" id="authStatus">未登录 · 数据仅本地</div>
     </div>
   </aside>
 
@@ -2435,6 +2443,317 @@ input[type="range"]::-webkit-slider-thumb {
 
   /* ========== 数据存储 ========== */
   const STORE_KEY = 'donna-workbench-v1';
+
+  /* ========== 云端协作配置 (Supabase) ========== */
+  const SUPABASE_URL = 'https://yrystberrtwledvybvbo.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_JKoU-RU61_Ywy9TZkTBO5w_mNknw0lR';
+  // 云端表映射：栏目 -> 表名（每张表存一行整块快照，data 为该栏目完整数组）
+  const CLOUD_TABLES = {
+    records:    { table: 'donna_records',     key: 'records' },
+    tasks:      { table: 'donna_tasks',       key: 'tasks' },
+    weekTasks:  { table: 'donna_week_tasks',  key: 'weekTasks' },
+    monthTasks: { table: 'donna_month_tasks', key: 'monthTasks' }
+  };
+  // 每张表固定用同一行 id，实现"整块快照"读写
+  const CLOUD_ROW_IDS = {
+    donna_records:     '00000000-0000-4000-8000-000000000001',
+    donna_tasks:       '00000000-0000-4000-8000-000000000002',
+    donna_week_tasks:  '00000000-0000-4000-8000-000000000003',
+    donna_month_tasks: '00000000-0000-4000-8000-000000000004'
+  };
+  const AUTH_STORE_KEY = 'donna-auth-v1';
+  const cloud = {
+    user: null,        // {id, email}
+    token: null,       // access_token (JWT)
+    authed: false,     // 当前是否有有效登录
+    lastPullAt: 0,
+    syncing: false
+  };
+  // 从 localStorage 恢复登录态
+  try {
+    const raw = localStorage.getItem(AUTH_STORE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s.token && s.user) {
+        cloud.token = s.token;
+        cloud.user = s.user;
+        cloud.authed = true;
+      }
+    }
+  } catch (e) {}
+
+  /* ---------- Supabase REST 通用请求 ---------- */
+  async function supaReq(path, opts = {}) {
+    const headers = {
+      'apikey': SUPABASE_KEY,
+      'Authorization': cloud.authed && cloud.token ? 'Bearer ' + cloud.token : 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      ...(opts.headers || {})
+    };
+    const res = await fetch(SUPABASE_URL + path, { ...opts, headers });
+    const text = await res.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+    if (!res.ok) {
+      const err = (data && (data.msg || data.message || data.error_description)) || ('请求失败 ' + res.status);
+      throw new Error(err);
+    }
+    return data;
+  }
+
+  /* ---------- Auth：注册 ---------- */
+  async function supaSignup(email, password) {
+    const d = await supaReq('/auth/v1/signup', {
+      method: 'POST',
+      body: JSON.stringify({ email, password })
+    });
+    return d;
+  }
+
+  /* ---------- Auth：登录 ---------- */
+  async function supaLogin(email, password) {
+    const d = await supaReq('/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      body: JSON.stringify({ email, password })
+    });
+    cloud.token = d.access_token;
+    cloud.user = {
+      id: d.user && d.user.id,
+      email: d.user && d.user.email
+    };
+    cloud.authed = true;
+    try { localStorage.setItem(AUTH_STORE_KEY, JSON.stringify({ token: cloud.token, user: cloud.user })); } catch (e) {}
+    return d;
+  }
+
+  /* ---------- Auth：登出 ---------- */
+  async function supaLogout() {
+    if (cloud.authed && cloud.token) {
+      try { await supaReq('/auth/v1/logout', { method: 'POST' }); } catch (e) {}
+    }
+    cloud.authed = false;
+    cloud.token = null;
+    cloud.user = null;
+    try { localStorage.removeItem(AUTH_STORE_KEY); } catch (e) {}
+    renderAuthUI();
+    if (typeof refreshCurrentView === 'function') refreshCurrentView();
+  }
+
+  /* ---------- 云端数据：拉取某栏目整块快照 ---------- */
+  async function pullCloud(storeKey) {
+    const conf = CLOUD_TABLES[storeKey];
+    if (!conf) return;
+    const rowId = CLOUD_ROW_IDS[conf.table];
+    const rows = await supaReq(`/rest/v1/${conf.table}?select=data&id=eq.${rowId}&limit=1`);
+    if (rows && rows[0] && Array.isArray(rows[0].data)) {
+      state[conf.key] = rows[0].data;
+    }
+  }
+
+  /* ---------- 云端数据：推送某栏目整块快照 ---------- */
+  async function pushCloud(storeKey) {
+    const conf = CLOUD_TABLES[storeKey];
+    if (!conf) return;
+    const rowId = CLOUD_ROW_IDS[conf.table];
+    const payload = {
+      id: rowId,
+      data: state[conf.key] || [],
+      created_by: cloud.user ? cloud.user.email : null
+    };
+    try {
+      // 先尝试 upsert
+      await supaReq(`/rest/v1/${conf.table}?on_conflict=id`, {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      // upsert 失败则降级为插入
+      try {
+        await supaReq(`/rest/v1/${conf.table}`, {
+          method: 'POST',
+          headers: { 'Prefer': 'return=minimal' },
+          body: JSON.stringify(payload)
+        });
+      } catch (e2) { throw e2; }
+    }
+  }
+
+  /* ---------- 云端：全量拉取所有协作栏目 ---------- */
+  async function pullAllFromCloud() {
+    if (!cloud.authed) return false;
+    try {
+      await Promise.all(['records', 'tasks', 'weekTasks', 'monthTasks'].map(pullCloud));
+      cloud.lastPullAt = Date.now();
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      if (typeof refreshCurrentView === 'function') refreshCurrentView();
+      toast('已同步云端数据');
+      return true;
+    } catch (e) {
+      console.error('云端拉取失败', e);
+      return false;
+    }
+  }
+
+  /* ---------- 云端：全量推送（登录后首次） ---------- */
+  async function pushAllToCloud() {
+    if (!cloud.authed) return;
+    try {
+      await Promise.all(['records', 'tasks', 'weekTasks', 'monthTasks'].map(pushCloud));
+      toast('数据已上传云端');
+    } catch (e) {
+      console.error('云端推送失败', e);
+    }
+  }
+
+  /* ---------- 防抖同步：本地变更后推送到云端 ---------- */
+  let _cloudSyncTimer = null;
+  function scheduleCloudSync() {
+    if (!cloud.authed) return;
+    clearTimeout(_cloudSyncTimer);
+    _cloudSyncTimer = setTimeout(() => {
+      pushAllToCloud();
+    }, 600);
+  }
+
+  /* ---------- 登录 / 注册 UI ---------- */
+  function renderAuthUI() {
+    const el = $('#authBtn');
+    const statusEl = $('#authStatus');
+    const logoutEl = $('#logoutBtn');
+    if (el) {
+      if (cloud.authed && cloud.user) {
+        const label = el.querySelector('.auth-label');
+        if (label) label.textContent = (cloud.user.email || '').split('@')[0];
+        const dot = el.querySelector('.auth-dot');
+        if (dot) dot.style.background = 'var(--success, #16a34a)';
+        el.classList.add('logged');
+      } else {
+        const label = el.querySelector('.auth-label');
+        if (label) label.textContent = '账号登录';
+        const dot = el.querySelector('.auth-dot');
+        if (dot) dot.style.background = 'var(--muted, #94a3b8)';
+        el.classList.remove('logged');
+      }
+    }
+    if (statusEl) statusEl.textContent = cloud.authed ? ('云端已连接 · ' + (cloud.user && cloud.user.email || '')) : '未登录 · 数据仅本地';
+    if (logoutEl) logoutEl.style.display = cloud.authed ? 'inline-flex' : 'none';
+  }
+
+  function openAuthModal() {
+    const title = '登录 Donna 工作台';
+    const body = `
+      <div style="text-align:center;padding:4px 0 12px;color:var(--muted);font-size:13px">
+        登录后可与他人云端协作「每日记账 / 每日·每周·每月工作计划」
+      </div>
+      <div class="field">
+        <label>邮箱</label>
+        <input type="email" id="authEmail" placeholder="your@email.com" autocomplete="email" />
+      </div>
+      <div class="field">
+        <label>密码</label>
+        <input type="password" id="authPass" placeholder="至少6位" autocomplete="current-password" />
+      </div>
+      <div class="auth-mode" style="font-size:13px;color:var(--muted);margin-top:10px">
+        还没有账号？<a href="javascript:void(0)" id="authGoSignup">去注册</a>
+      </div>
+      <div class="auth-hint" id="authHint" style="font-size:13px;min-height:18px;margin-top:10px"></div>
+      <div class="form-actions" style="margin-top:16px">
+        <button class="ghost-btn" id="modalCancel">取消</button>
+        <button class="primary-btn" id="modalOk">登录</button>
+      </div>
+    `;
+    showModal(title, body, () => {
+      const email = $('#authEmail');
+      const pass = $('#authPass');
+      const hint = $('#authHint');
+      const goSignup = $('#authGoSignup');
+      $('#modalCancel').addEventListener('click', closeModal);
+      const doSubmit = () => {
+        const e = (email.value || '').trim();
+        const p = pass.value || '';
+        if (!e || !e.includes('@')) { hint.textContent = '请输入有效邮箱'; hint.style.color = 'var(--danger)'; return; }
+        if (p.length < 6) { hint.textContent = '密码至少6位'; hint.style.color = 'var(--danger)'; return; }
+        hint.textContent = '登录中…'; hint.style.color = 'var(--muted)';
+        supaLogin(e, p).then(() => {
+          hint.textContent = '登录成功，正在同步…'; hint.style.color = 'var(--success)';
+          closeModal();
+          renderAuthUI();
+          toast('登录成功');
+          pullAllFromCloud().then(() => {
+            pushAllToCloud();
+            if (typeof refreshCurrentView === 'function') refreshCurrentView();
+          });
+        }).catch(err => {
+          const msg = String(err && err.message || err);
+          if (msg.includes('Email not confirmed')) {
+            hint.textContent = '该邮箱尚未验证，请先到邮箱点击验证链接'; hint.style.color = 'var(--danger)';
+          } else if (msg.includes('Invalid login')) {
+            hint.textContent = '邮箱或密码错误'; hint.style.color = 'var(--danger)';
+          } else {
+            hint.textContent = '登录失败：' + msg; hint.style.color = 'var(--danger)';
+          }
+        });
+      };
+      email.addEventListener('keydown', e => { if (e.key === 'Enter') pass.focus(); });
+      pass.addEventListener('keydown', e => { if (e.key === 'Enter') doSubmit(); });
+      $('#modalOk').addEventListener('click', doSubmit);
+      if (goSignup) goSignup.addEventListener('click', () => openSignupModal());
+    }, '登录');
+  }
+
+  function openSignupModal() {
+    const title = '注册账号';
+    const body = `
+      <div style="text-align:center;padding:4px 0 12px;color:var(--muted);font-size:13px">
+        注册后即可参与云端协作，数据自动同步
+      </div>
+      <div class="field">
+        <label>邮箱</label>
+        <input type="email" id="authEmail" placeholder="your@email.com" />
+      </div>
+      <div class="field">
+        <label>密码</label>
+        <input type="password" id="authPass" placeholder="至少6位" />
+      </div>
+      <div class="auth-mode" style="font-size:13px;color:var(--muted);margin-top:10px">
+        已有账号？<a href="javascript:void(0)" id="authGoLogin">去登录</a>
+      </div>
+      <div class="auth-hint" id="authHint" style="font-size:13px;min-height:18px;margin-top:10px"></div>
+      <div class="form-actions" style="margin-top:16px">
+        <button class="ghost-btn" id="modalCancel">取消</button>
+        <button class="primary-btn" id="modalOk">注册</button>
+      </div>
+    `;
+    showModal(title, body, () => {
+      const email = $('#authEmail');
+      const pass = $('#authPass');
+      const hint = $('#authHint');
+      const goLogin = $('#authGoLogin');
+      $('#modalCancel').addEventListener('click', closeModal);
+      const doSubmit = () => {
+        const e = (email.value || '').trim();
+        const p = pass.value || '';
+        if (!e || !e.includes('@')) { hint.textContent = '请输入有效邮箱'; hint.style.color = 'var(--danger)'; return; }
+        if (p.length < 6) { hint.textContent = '密码至少6位'; hint.style.color = 'var(--danger)'; return; }
+        hint.textContent = '注册中…'; hint.style.color = 'var(--muted)';
+        supaSignup(e, p).then(() => {
+          hint.textContent = '注册成功！请到邮箱点击验证链接后登录（若没收到，可在控制台关闭邮箱验证）'; hint.style.color = 'var(--success)';
+          setTimeout(() => { closeModal(); renderAuthUI(); }, 2000);
+        }).catch(err => {
+          const msg = String(err && err.message || err);
+          if (msg.includes('already')) hint.textContent = '该邮箱已注册，请直接登录';
+          else hint.textContent = '注册失败：' + msg;
+          hint.style.color = 'var(--danger)';
+        });
+      };
+      email.addEventListener('keydown', e => { if (e.key === 'Enter') pass.focus(); });
+      pass.addEventListener('keydown', e => { if (e.key === 'Enter') doSubmit(); });
+      $('#modalOk').addEventListener('click', doSubmit);
+      if (goLogin) goLogin.addEventListener('click', () => openAuthModal());
+    }, '注册');
+  }
+
   const REVIEW_INTERVALS = [1, 2, 4, 7, 15]; // 艾宾浩斯间隔(天)
   const ENG_SCENES = {
     airport: { name: '机场通关', icon: '✈️', color: '#93c5fd' },
@@ -2897,6 +3216,8 @@ input[type="range"]::-webkit-slider-thumb {
     } catch (e) {
       toast('数据保存失败');
     }
+    // 已登录则防抖同步到云端
+    scheduleCloudSync();
   }
 
   let state = loadData();
@@ -2926,6 +3247,24 @@ input[type="range"]::-webkit-slider-thumb {
     setTimeout(() => $('#memoSearch').focus(), 200);
   });
 
+  /* ========== 云端登录入口 ========== */
+  const authBtn = $('#authBtn');
+  const logoutBtn = $('#logoutBtn');
+  if (authBtn) authBtn.addEventListener('click', () => {
+    if (cloud.authed) return; // 已登录，点击不弹登录窗（用退出按钮）
+    openAuthModal();
+  });
+  if (logoutBtn) logoutBtn.addEventListener('click', () => {
+    if (confirm('确定退出登录吗？本地数据会保留')) {
+      supaLogout();
+    }
+  });
+  renderAuthUI();
+  // 若已恢复登录态，后台自动拉取一次云端数据
+  if (cloud.authed) {
+    setTimeout(() => { pullAllFromCloud(); }, 800);
+  }
+
   function switchView(name) {
     $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === name));
     $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
@@ -2942,6 +3281,13 @@ input[type="range"]::-webkit-slider-thumb {
     if (name === 'douyin') renderDouyin();
     if (name === 'english') renderEnglish();
     if (name === 'dywomen') renderDyWomen();
+  }
+
+  // 重新渲染当前激活的视图（登录/同步后调用）
+  function refreshCurrentView() {
+    const activeNav = $('.nav-item.active');
+    const name = activeNav ? activeNav.dataset.view : 'overview';
+    switchView(name);
   }
 
   /* ========== 总览 ========== */

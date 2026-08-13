@@ -1992,18 +1992,26 @@ input[type="range"]::-webkit-slider-thumb {
         </div>
       </div>
 
+      <!-- 日期导航条 -->
+      <div class="plan-date-bar" style="margin-bottom:12px">
+        <button class="ghost-btn small" id="financePrevDay">‹ 前一天</button>
+        <input type="date" id="financeDate" class="plan-date-input" style="flex:1;text-align:center" />
+        <button class="ghost-btn small" id="financeNextDay">后一天 ›</button>
+        <button class="ghost-btn small" id="financeToday" style="margin-left:6px">今天</button>
+      </div>
+
       <div class="finance-summary">
-        <div class="finance-card income">
-          <div class="finance-label">本月收入</div>
-          <div class="finance-value" id="monthIncome">¥0.00</div>
-        </div>
         <div class="finance-card expense">
-          <div class="finance-label">本月支出</div>
-          <div class="finance-value" id="monthExpense">¥0.00</div>
+          <div class="finance-label">当日支出</div>
+          <div class="finance-value" id="dayExpense">¥0.00</div>
         </div>
         <div class="finance-card balance">
-          <div class="finance-label">结余</div>
-          <div class="finance-value" id="monthBalance">¥0.00</div>
+          <div class="finance-label">当日笔数</div>
+          <div class="finance-value" id="dayCount">0 笔</div>
+        </div>
+        <div class="finance-card income">
+          <div class="finance-label">本月支出</div>
+          <div class="finance-value" id="monthExpense">¥0.00</div>
         </div>
       </div>
 
@@ -2017,7 +2025,7 @@ input[type="range"]::-webkit-slider-thumb {
 
       <div class="panel">
         <div class="panel-header">
-          <h3>账单列表</h3>
+          <h3>账单列表 <span class="muted" style="font-weight:400;font-size:13px" id="financeDateLabel"></span></h3>
           <div class="seg">
             <button class="seg-btn active" data-seg="all">全部</button>
             <button class="seg-btn" data-seg="expense">支出</button>
@@ -3758,22 +3766,15 @@ input[type="range"]::-webkit-slider-thumb {
 
   /* ========== 每日记账 ========== */
   let financeSeg = 'all';
+  let financeDate = todayKey(); // 记账查看日期，默认今天
 
   const expenseCategories = [
-    { name: '餐饮', icon: '🍜' },
-    { name: '交通', icon: '🚇' },
-    { name: '购物', icon: '🛍️' },
-    { name: '娱乐', icon: '🎮' },
-    { name: '居家', icon: '🏠' },
-    { name: '医疗', icon: '💊' },
-    { name: '学习', icon: '📚' },
+    { name: '样品', icon: '👗' },
+    { name: '搭配品', icon: '👜' },
+    { name: '办公费用', icon: '📎' },
     { name: '其他', icon: '✨' }
   ];
   const incomeCategories = [
-    { name: '工资', icon: '💼' },
-    { name: '兼职', icon: '🤝' },
-    { name: '理财', icon: '📈' },
-    { name: '红包', icon: '🧧' },
     { name: '其他', icon: '💰' }
   ];
 
@@ -3783,12 +3784,14 @@ input[type="range"]::-webkit-slider-thumb {
     const monthRecs = state.records.filter(r => r.date.startsWith(ym));
     const income = monthRecs.filter(r => r.type==='income').reduce((s,r)=>s+Number(r.amount), 0);
     const expense = monthRecs.filter(r => r.type==='expense').reduce((s,r)=>s+Number(r.amount), 0);
-    $('#monthIncome').textContent = '¥' + income.toFixed(2);
+    const mi = $('#monthIncome'); if (mi) mi.textContent = '¥' + income.toFixed(2);
     $('#monthExpense').textContent = '¥' + expense.toFixed(2);
     const bal = income - expense;
     const balEl = $('#monthBalance');
-    balEl.textContent = (bal < 0 ? '-' : '') + '¥' + Math.abs(bal).toFixed(2);
-    balEl.style.color = bal >= 0 ? 'var(--success)' : 'var(--danger)';
+    if (balEl) {
+      balEl.textContent = (bal < 0 ? '-' : '') + '¥' + Math.abs(bal).toFixed(2);
+      balEl.style.color = bal >= 0 ? 'var(--success)' : 'var(--danger)';
+    }
 
     // 近 7 天柱状图
     const days = [];
@@ -3809,12 +3812,26 @@ input[type="range"]::-webkit-slider-thumb {
       </div>
     `).join('');
 
-    // 列表
-    let list = state.records.slice().sort((a,b) => b.date.localeCompare(a.date) || (b.createdAt||'').localeCompare(a.createdAt||''));
+    // 日期选择器同步
+    const dp = $('#financeDate');
+    if (dp) dp.value = financeDate;
+    const dlbl = $('#financeDateLabel');
+    if (dlbl) dlbl.textContent = '· ' + financeDate;
+    // 当日统计
+    const dayRecs = state.records.filter(r => r.date === financeDate);
+    const dayExpense = dayRecs.filter(r => r.type==='expense').reduce((s,r)=>s+Number(r.amount), 0);
+    const dayEl = $('#dayExpense');
+    if (dayEl) dayEl.textContent = '¥' + dayExpense.toFixed(2);
+    const dayCntEl = $('#dayCount');
+    if (dayCntEl) dayCntEl.textContent = dayRecs.length + ' 笔';
+
+    // 列表：按选中日期筛选
+    let list = state.records.filter(r => r.date === financeDate).slice()
+      .sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
     if (financeSeg !== 'all') list = list.filter(r => r.type === financeSeg);
     const box = $('#recordList');
     if (list.length === 0) {
-      box.innerHTML = '<div class="empty">还没有账单，点击右上角记一笔 ✏️</div>';
+      box.innerHTML = `<div class="empty">${financeDate} 暂无记录，点击右上角记一笔 ✏️</div>`;
       return;
     }
     box.innerHTML = list.map(r => {
@@ -3825,6 +3842,7 @@ input[type="range"]::-webkit-slider-thumb {
           <div class="record-title">${escapeHtml(r.category)}${r.note ? ' · ' + escapeHtml(r.note) : ''}</div>
           <div class="record-meta">
             <span>${r.date}</span>
+            ${r.registrar ? `<span style="margin-left:8px">👤 ${escapeHtml(r.registrar)}</span>` : ''}
           </div>
         </div>
         <div class="record-amount ${r.type}">${r.type==='expense'?'-':'+'}¥${Number(r.amount).toFixed(2)}</div>
@@ -3853,9 +3871,36 @@ input[type="range"]::-webkit-slider-thumb {
 
   $('#addRecordBtn').addEventListener('click', () => openRecordModal());
 
+  // 日期选择器：查看任意一天的记账
+  const finDatePicker = $('#financeDate');
+  if (finDatePicker) finDatePicker.addEventListener('change', () => {
+    financeDate = finDatePicker.value || todayKey();
+    renderFinance();
+  });
+  // 前一天 / 后一天
+  const finPrev = $('#financePrevDay');
+  if (finPrev) finPrev.addEventListener('click', () => {
+    const d = new Date(financeDate); d.setDate(d.getDate() - 1);
+    financeDate = todayKey(d);
+    renderFinance();
+  });
+  const finNext = $('#financeNextDay');
+  if (finNext) finNext.addEventListener('click', () => {
+    const d = new Date(financeDate); d.setDate(d.getDate() + 1);
+    financeDate = todayKey(d);
+    renderFinance();
+  });
+  // 回到今天
+  const finToday = $('#financeToday');
+  if (finToday) finToday.addEventListener('click', () => {
+    financeDate = todayKey();
+    renderFinance();
+  });
+
   function openRecordModal(id) {
     const r = id ? state.records.find(x => x.id === id) : null;
     const title = r ? '编辑账单' : '记一笔';
+    const defaultRegistrar = (cloud.authed && cloud.user && cloud.user.email) ? cloud.user.email : '';
     const body = `
       <div class="field">
         <label>类型</label>
@@ -3873,8 +3918,12 @@ input[type="range"]::-webkit-slider-thumb {
         <div class="tag-options" id="f-cat"></div>
       </div>
       <div class="field">
+        <label>登记人</label>
+        <input type="text" id="f-registrar" value="${escapeHtml(r?.registrar || defaultRegistrar)}" placeholder="谁记的账" />
+      </div>
+      <div class="field">
         <label>日期</label>
-        <input type="date" id="f-date" value="${r?.date || todayKey()}" />
+        <input type="date" id="f-date" value="${r?.date || financeDate}" />
       </div>
       <div class="field">
         <label>备注</label>
@@ -3887,7 +3936,7 @@ input[type="range"]::-webkit-slider-thumb {
     `;
     showModal(title, body, () => {
       let type = r?.type || 'expense';
-      let cat = r?.category || '餐饮';
+      let cat = r?.category || '样品';
       const renderCats = () => {
         const list = type === 'expense' ? expenseCategories : incomeCategories;
         $('#f-cat').innerHTML = list.map(c => `<button type="button" data-val="${c.name}" class="${c.name===cat?'active':''}">${c.icon} ${c.name}</button>`).join('');
@@ -3914,7 +3963,8 @@ input[type="range"]::-webkit-slider-thumb {
           id: r?.id || uid(),
           type, amount,
           category: cat,
-          date: $('#f-date').value || todayKey(),
+          registrar: $('#f-registrar').value.trim() || defaultRegistrar,
+          date: $('#f-date').value || financeDate,
           note: $('#f-note').value.trim(),
           createdAt: r?.createdAt || new Date().toISOString()
         };

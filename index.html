@@ -1514,6 +1514,92 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
   .dyw-img { width: 56px; height: 56px; }
 }
 
+/* ========== 三层工作计划 ========== */
+.plan-date-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.plan-date-bar .filter {
+  font-size: 13px;
+  padding: 6px 12px;
+}
+.plan-date-input {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--panel);
+}
+.plan-week-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  padding: 0 8px;
+  min-width: 180px;
+  text-align: center;
+}
+.plan-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.plan-toolbar .filter-bar {
+  margin-bottom: 0;
+}
+.plan-summary {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.task-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #f3f4f6;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.task-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  border-radius: 3px;
+  transition: width .3s;
+}
+.task-progress-text {
+  font-size: 11px;
+  color: #f59e0b;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+/* range 滑块美化 */
+input[type="range"] {
+  -webkit-appearance: none;
+  height: 6px;
+  background: #f3f4f6;
+  border-radius: 3px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #f59e0b;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+
 /* ========== 抖音助手·选题灵感卡片 ========== */
 .dy-update-card {
   display: flex;
@@ -1660,8 +1746,16 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
         <span>总览</span>
       </button>
       <button class="nav-item" data-view="plan">
-        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
         <span>每日工作计划</span>
+      </button>
+      <button class="nav-item" data-view="plan-week">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+        <span>每周工作计划</span>
+      </button>
+      <button class="nav-item" data-view="plan-month">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg></span>
+        <span>每月工作计划</span>
       </button>
       <button class="nav-item" data-view="finance">
         <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
@@ -1788,23 +1882,94 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
           <p class="page-sub">规划你的 24 小时，从容不迫</p>
         </div>
         <div class="quick-actions">
-          <select class="select" id="planDate">
-            <option value="today">今天</option>
-            <option value="tomorrow">明天</option>
-            <option value="week">本周</option>
-          </select>
           <button class="primary-btn" id="addTaskBtn">+ 新建任务</button>
         </div>
       </div>
 
-      <div class="filter-bar">
-        <button class="filter active" data-filter="all">全部</button>
-        <button class="filter" data-filter="todo">待办</button>
-        <button class="filter" data-filter="doing">进行中</button>
-        <button class="filter" data-filter="done">已完成</button>
+      <!-- 日期查询条 -->
+      <div class="plan-date-bar">
+        <button class="filter" id="planPrevDay">‹ 前一天</button>
+        <input type="date" id="planDatePicker" class="plan-date-input" />
+        <button class="filter" id="planNextDay">后一天 ›</button>
+        <button class="filter" id="planToday">今天</button>
+      </div>
+
+      <!-- 筛选 + 统计 -->
+      <div class="plan-toolbar">
+        <div class="filter-bar">
+          <button class="filter active" data-pfilter="all">全部</button>
+          <button class="filter" data-pfilter="todo">待办</button>
+          <button class="filter" data-pfilter="doing">进行中</button>
+          <button class="filter" data-pfilter="done">已完成</button>
+        </div>
+        <div class="plan-summary" id="planSummary"></div>
       </div>
 
       <div class="task-list" id="taskList"></div>
+    </section>
+
+    <!-- 每周工作计划 -->
+    <section class="view" id="view-plan-week">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">每周工作计划</h1>
+          <p class="page-sub">周度目标与里程碑，把握节奏</p>
+        </div>
+        <div class="quick-actions">
+          <button class="primary-btn" id="addWeekTaskBtn">+ 新建周任务</button>
+        </div>
+      </div>
+
+      <div class="plan-date-bar">
+        <button class="filter" id="weekPrev">‹ 前一周</button>
+        <span class="plan-week-label" id="weekLabel"></span>
+        <button class="filter" id="weekNext">后一周 ›</button>
+        <button class="filter" id="weekThis">本周</button>
+      </div>
+
+      <div class="plan-toolbar">
+        <div class="filter-bar">
+          <button class="filter active" data-wfilter="all">全部</button>
+          <button class="filter" data-wfilter="todo">待办</button>
+          <button class="filter" data-wfilter="doing">进行中</button>
+          <button class="filter" data-wfilter="done">已完成</button>
+        </div>
+        <div class="plan-summary" id="weekSummary"></div>
+      </div>
+
+      <div class="task-list" id="weekTaskList"></div>
+    </section>
+
+    <!-- 每月工作计划 -->
+    <section class="view" id="view-plan-month">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">每月工作计划</h1>
+          <p class="page-sub">月度规划与复盘，看清方向</p>
+        </div>
+        <div class="quick-actions">
+          <button class="primary-btn" id="addMonthTaskBtn">+ 新建月任务</button>
+        </div>
+      </div>
+
+      <div class="plan-date-bar">
+        <button class="filter" id="monthPrev">‹ 前一月</button>
+        <span class="plan-week-label" id="monthLabel"></span>
+        <button class="filter" id="monthNext">后一月 ›</button>
+        <button class="filter" id="monthThis">本月</button>
+      </div>
+
+      <div class="plan-toolbar">
+        <div class="filter-bar">
+          <button class="filter active" data-mfilter="all">全部</button>
+          <button class="filter" data-mfilter="todo">待办</button>
+          <button class="filter" data-mfilter="doing">进行中</button>
+          <button class="filter" data-mfilter="done">已完成</button>
+        </div>
+        <div class="plan-summary" id="monthSummary"></div>
+      </div>
+
+      <div class="task-list" id="monthTaskList"></div>
     </section>
 
     <!-- 每日记账 -->
@@ -2672,7 +2837,9 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
   };
 
   const defaultData = {
-    tasks: [],
+    tasks: [],          // {id,title,date,time,priority,status,tag,note,duration,progress,planType,createdAt,doneAt}
+    weekTasks: [],      // 每周计划
+    monthTasks: [],     // 每月计划
     records: [],
     learns: [],
     sports: [],
@@ -2712,6 +2879,9 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
       return {
         ...defaultData,
         ...parsed,
+        tasks: parsed.tasks || [],
+        weekTasks: parsed.weekTasks || [],
+        monthTasks: parsed.monthTasks || [],
         medical: { ...defaultData.medical, ...(parsed.medical || {}) },
         english: { ...defaultData.english, ...(parsed.english || {}) },
         dyWomen: { ...defaultData.dyWomen, ...(parsed.dyWomen || {}) }
@@ -2763,6 +2933,8 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
     $('.main').scrollTop = 0;
     if (name === 'overview') renderOverview();
     if (name === 'plan') renderTasks();
+    if (name === 'plan-week') renderWeekTasks();
+    if (name === 'plan-month') renderMonthTasks();
     if (name === 'finance') renderFinance();
     if (name === 'study') { renderStudy(); renderSport(); }
     if (name === 'medical') renderMedical();
@@ -2844,46 +3016,138 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
     }
   }
 
-  /* ========== 每日工作计划 ========== */
+  /* ========== 工作计划（每日/每周/每月三层） ========== */
   let planFilter = 'all';
+  let weekFilter = 'all';
+  let monthFilter = 'all';
+  let planCurrentDate = todayKey();   // 每日计划当前查看的日期
+  let weekCurrentStart = '';          // 每周计划当前查看的周一日期
+  let monthCurrentKey = '';           // 每月计划当前查看的 YYYY-MM
 
+  // 日期工具
+  function fmtDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${dd}`;
+  }
+  function getMonday(d) {
+    const tmp = new Date(d);
+    const day = tmp.getDay() || 7;
+    if (day !== 1) tmp.setDate(tmp.getDate() - day + 1);
+    return tmp;
+  }
+  function getMonthKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+
+  // ============ 每日计划 ============
   function renderTasks() {
-    const sel = $('#planDate').value;
-    const today = new Date();
-    let list = [];
-    if (sel === 'today') {
-      const k = todayKey(today);
-      list = state.tasks.filter(t => t.date === k);
-    } else if (sel === 'tomorrow') {
-      const t = new Date(today); t.setDate(t.getDate()+1);
-      list = state.tasks.filter(x => x.date === todayKey(t));
-    } else {
-      // 本周
-      const start = new Date(today); start.setDate(today.getDate() - today.getDay());
-      const end = new Date(start); end.setDate(start.getDate() + 6);
-      list = state.tasks.filter(x => {
-        const d = new Date(x.date);
-        return d >= start && d <= end;
-      });
-    }
+    const dp = $('#planDatePicker');
+    if (dp && !dp.value) dp.value = planCurrentDate;
+    const viewDate = dp?.value || planCurrentDate;
+    planCurrentDate = viewDate;
+
+    let list = state.tasks.filter(t => t.date === viewDate);
     list = list.filter(t => planFilter === 'all' || t.status === planFilter);
     list.sort((a, b) => {
       const order = { todo: 0, doing: 1, done: 2 };
       if (order[a.status] !== order[b.status]) return order[a.status] - order[b.status];
+      const pOrder = { high: 0, mid: 1, low: 2 };
+      if (pOrder[a.priority] !== pOrder[b.priority]) return pOrder[a.priority] - pOrder[b.priority];
       return (a.time || '99:99').localeCompare(b.time || '99:99');
     });
 
+    // 统计
+    const allTasks = state.tasks.filter(t => t.date === viewDate);
+    const doneCount = allTasks.filter(t => t.status === 'done').length;
+    const totalDur = allTasks.reduce((s,t) => s + (Number(t.duration)||0), 0);
+    const doneDur = allTasks.filter(t=>t.status==='done').reduce((s,t) => s + (Number(t.duration)||0), 0);
+    const sumEl = $('#planSummary');
+    if (sumEl) sumEl.textContent = `${allTasks.length}项 · 完成${doneCount}/${allTasks.length} · 时长${doneDur}/${totalDur}min`;
+
     const box = $('#taskList');
     if (list.length === 0) {
-      box.innerHTML = '<div class="empty" style="background:var(--panel);border-radius:var(--radius);padding:40px;border:1px dashed var(--border)">📝 当前没有任务，点击右上角"新建任务"开始规划</div>';
+      box.innerHTML = '<div class="empty" style="padding:40px;border:1px dashed var(--border);border-radius:12px;text-align:center;color:var(--muted)">📝 当日没有任务，点击右上角"新建任务"开始规划</div>';
       return;
     }
     box.innerHTML = list.map(t => taskItemHtml(t)).join('');
-    bindTaskEvents();
+    bindTaskEvents(box, 'daily');
   }
 
+  // ============ 每周计划 ============
+  function renderWeekTasks() {
+    if (!weekCurrentStart) weekCurrentStart = fmtDate(getMonday(new Date()));
+    const startDate = new Date(weekCurrentStart);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+    const labelEl = $('#weekLabel');
+    if (labelEl) labelEl.textContent = `${fmtDate(startDate)} ~ ${fmtDate(endDate)}`;
+
+    const endKey = fmtDate(endDate);
+    let list = state.weekTasks.filter(t => t.weekStart === weekCurrentStart);
+    list = list.filter(t => weekFilter === 'all' || t.status === weekFilter);
+    list.sort((a, b) => {
+      const order = { todo: 0, doing: 1, done: 2 };
+      if (order[a.status] !== order[b.status]) return order[a.status] - order[b.status];
+      const pOrder = { high: 0, mid: 1, low: 2 };
+      return pOrder[a.priority] - pOrder[b.priority];
+    });
+
+    const allTasks = state.weekTasks.filter(t => t.weekStart === weekCurrentStart);
+    const doneCount = allTasks.filter(t => t.status === 'done').length;
+    const totalDur = allTasks.reduce((s,t) => s + (Number(t.duration)||0), 0);
+    const doneDur = allTasks.filter(t=>t.status==='done').reduce((s,t) => s + (Number(t.duration)||0), 0);
+    const sumEl = $('#weekSummary');
+    if (sumEl) sumEl.textContent = `${allTasks.length}项 · 完成${doneCount}/${allTasks.length} · 时长${doneDur}/${totalDur}min`;
+
+    const box = $('#weekTaskList');
+    if (list.length === 0) {
+      box.innerHTML = '<div class="empty" style="padding:40px;border:1px dashed var(--border);border-radius:12px;text-align:center;color:var(--muted)">📋 本周没有任务，点击右上角新建</div>';
+      return;
+    }
+    box.innerHTML = list.map(t => taskItemHtml(t)).join('');
+    bindTaskEvents(box, 'weekly');
+  }
+
+  // ============ 每月计划 ============
+  function renderMonthTasks() {
+    if (!monthCurrentKey) monthCurrentKey = getMonthKey(new Date());
+    const labelEl = $('#monthLabel');
+    if (labelEl) {
+      const [y,m] = monthCurrentKey.split('-');
+      labelEl.textContent = `${y}年${parseInt(m)}月`;
+    }
+
+    let list = state.monthTasks.filter(t => t.monthKey === monthCurrentKey);
+    list = list.filter(t => monthFilter === 'all' || t.status === monthFilter);
+    list.sort((a, b) => {
+      const order = { todo: 0, doing: 1, done: 2 };
+      if (order[a.status] !== order[b.status]) return order[a.status] - order[b.status];
+      const pOrder = { high: 0, mid: 1, low: 2 };
+      return pOrder[a.priority] - pOrder[b.priority];
+    });
+
+    const allTasks = state.monthTasks.filter(t => t.monthKey === monthCurrentKey);
+    const doneCount = allTasks.filter(t => t.status === 'done').length;
+    const totalDur = allTasks.reduce((s,t) => s + (Number(t.duration)||0), 0);
+    const doneDur = allTasks.filter(t=>t.status==='done').reduce((s,t) => s + (Number(t.duration)||0), 0);
+    const sumEl = $('#monthSummary');
+    if (sumEl) sumEl.textContent = `${allTasks.length}项 · 完成${doneCount}/${allTasks.length} · 时长${doneDur}/${totalDur}min`;
+
+    const box = $('#monthTaskList');
+    if (list.length === 0) {
+      box.innerHTML = '<div class="empty" style="padding:40px;border:1px dashed var(--border);border-radius:12px;text-align:center;color:var(--muted)">🎯 本月没有任务，点击右上角新建</div>';
+      return;
+    }
+    box.innerHTML = list.map(t => taskItemHtml(t)).join('');
+    bindTaskEvents(box, 'monthly');
+  }
+
+  // 通用任务卡片 HTML
   function taskItemHtml(t) {
     const isDone = t.status === 'done';
+    const progress = t.progress != null ? t.progress : (isDone ? 100 : 0);
+    const priorityLabel = t.priority==='high'?'高优':t.priority==='mid'?'中等':'普通';
+    const statusLabel = t.status==='todo'?'待办':t.status==='doing'?'进行中':'已完成';
     return `<div class="task-item ${isDone ? 'done' : ''}" data-id="${t.id}">
       <div class="task-check ${isDone ? 'checked' : ''}" data-act="toggle">
         ${isDone ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
@@ -2892,10 +3156,12 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
         <div class="task-title">${escapeHtml(t.title)}</div>
         <div class="task-meta">
           ${t.time ? `<span>⏰ ${t.time}</span>` : ''}
-          <span class="task-tag priority-${t.priority}">${t.priority==='high'?'高优':t.priority==='mid'?'中等':'普通'}</span>
-          <span class="task-tag status-${t.status}">${t.status==='todo'?'待办':t.status==='doing'?'进行中':'已完成'}</span>
+          <span class="task-tag priority-${t.priority}">${priorityLabel}</span>
+          <span class="task-tag status-${t.status}">${statusLabel}</span>
+          ${t.duration ? `<span>⏱️ ${t.duration}min</span>` : ''}
           ${t.tag ? `<span class="task-tag">${escapeHtml(t.tag)}</span>` : ''}
         </div>
+        ${progress > 0 && progress < 100 ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${progress}%"></div></div><div class="task-progress-text">${progress}%</div>` : ''}
         ${t.note ? `<div class="muted" style="margin-top:6px;font-size:12px">${escapeHtml(t.note)}</div>` : ''}
       </div>
       <div class="task-actions">
@@ -2909,70 +3175,173 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
     </div>`;
   }
 
-  function bindTaskEvents() {
-    $$('#taskList .task-item').forEach(item => {
+  // 通用事件绑定
+  function bindTaskEvents(box, planType) {
+    const store = planType === 'weekly' ? state.weekTasks : planType === 'monthly' ? state.monthTasks : state.tasks;
+    $$('#' + box.id + ' .task-item').forEach(item => {
       const id = item.dataset.id;
       item.querySelector('[data-act="toggle"]').addEventListener('click', () => {
-        const t = state.tasks.find(x => x.id === id);
+        const t = store.find(x => x.id === id);
         if (!t) return;
-        if (t.status === 'done') { t.status = 'todo'; t.doneAt = null; }
-        else { t.status = 'done'; t.doneAt = new Date().toISOString(); }
-        saveData(); renderTasks(); renderOverview();
+        if (t.status === 'done') { t.status = 'todo'; t.progress = 0; t.doneAt = null; }
+        else { t.status = 'done'; t.progress = 100; t.doneAt = new Date().toISOString(); }
+        saveData(); reRenderPlan(planType); renderOverview();
         toast(t.status === 'done' ? '✓ 已完成' : '已重置');
       });
       const editBtn = item.querySelector('[data-act="edit"]');
-      if (editBtn) editBtn.addEventListener('click', () => openTaskModal(id));
+      if (editBtn) editBtn.addEventListener('click', () => openPlanModal(id, planType));
       item.querySelector('[data-act="del"]').addEventListener('click', () => {
         if (confirm('确定删除这个任务吗？')) {
-          state.tasks = state.tasks.filter(x => x.id !== id);
-          saveData(); renderTasks(); renderOverview();
+          if (planType === 'weekly') state.weekTasks = state.weekTasks.filter(x => x.id !== id);
+          else if (planType === 'monthly') state.monthTasks = state.monthTasks.filter(x => x.id !== id);
+          else state.tasks = state.tasks.filter(x => x.id !== id);
+          saveData(); reRenderPlan(planType); renderOverview();
           toast('已删除');
         }
       });
     });
   }
 
-  $$('.filter-bar .filter').forEach(b => b.addEventListener('click', () => {
-    $$('.filter-bar .filter').forEach(x => x.classList.remove('active'));
+  function reRenderPlan(planType) {
+    if (planType === 'weekly') renderWeekTasks();
+    else if (planType === 'monthly') renderMonthTasks();
+    else renderTasks();
+  }
+
+  // ============ 日期导航事件 ============
+  $('#planPrevDay')?.addEventListener('click', () => {
+    const d = new Date(planCurrentDate); d.setDate(d.getDate()-1);
+    planCurrentDate = fmtDate(d);
+    $('#planDatePicker').value = planCurrentDate;
+    renderTasks();
+  });
+  $('#planNextDay')?.addEventListener('click', () => {
+    const d = new Date(planCurrentDate); d.setDate(d.getDate()+1);
+    planCurrentDate = fmtDate(d);
+    $('#planDatePicker').value = planCurrentDate;
+    renderTasks();
+  });
+  $('#planToday')?.addEventListener('click', () => {
+    planCurrentDate = todayKey();
+    $('#planDatePicker').value = planCurrentDate;
+    renderTasks();
+  });
+  $('#planDatePicker')?.addEventListener('change', (e) => {
+    planCurrentDate = e.target.value;
+    renderTasks();
+  });
+
+  $('#weekPrev')?.addEventListener('click', () => {
+    const d = new Date(weekCurrentStart); d.setDate(d.getDate()-7);
+    weekCurrentStart = fmtDate(d);
+    renderWeekTasks();
+  });
+  $('#weekNext')?.addEventListener('click', () => {
+    const d = new Date(weekCurrentStart); d.setDate(d.getDate()+7);
+    weekCurrentStart = fmtDate(d);
+    renderWeekTasks();
+  });
+  $('#weekThis')?.addEventListener('click', () => {
+    weekCurrentStart = fmtDate(getMonday(new Date()));
+    renderWeekTasks();
+  });
+
+  $('#monthPrev')?.addEventListener('click', () => {
+    const [y,m] = monthCurrentKey.split('-').map(Number);
+    const d = new Date(y, m-2, 1);
+    monthCurrentKey = getMonthKey(d);
+    renderMonthTasks();
+  });
+  $('#monthNext')?.addEventListener('click', () => {
+    const [y,m] = monthCurrentKey.split('-').map(Number);
+    const d = new Date(y, m, 1);
+    monthCurrentKey = getMonthKey(d);
+    renderMonthTasks();
+  });
+  $('#monthThis')?.addEventListener('click', () => {
+    monthCurrentKey = getMonthKey(new Date());
+    renderMonthTasks();
+  });
+
+  // ============ 筛选事件 ============
+  $$('[data-pfilter]')?.forEach(b => b.addEventListener('click', () => {
+    $$('[data-pfilter]').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
-    planFilter = b.dataset.filter;
+    planFilter = b.dataset.pfilter;
     renderTasks();
   }));
+  $$('[data-wfilter]')?.forEach(b => b.addEventListener('click', () => {
+    $$('[data-wfilter]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    weekFilter = b.dataset.wfilter;
+    renderWeekTasks();
+  }));
+  $$('[data-mfilter]')?.forEach(b => b.addEventListener('click', () => {
+    $$('[data-mfilter]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    monthFilter = b.dataset.mfilter;
+    renderMonthTasks();
+  }));
 
-  $('#addTaskBtn').addEventListener('click', () => openTaskModal(null));
+  // ============ 新建按钮 ============
+  $('#addTaskBtn')?.addEventListener('click', () => openPlanModal(null, 'daily'));
+  $('#addWeekTaskBtn')?.addEventListener('click', () => openPlanModal(null, 'weekly'));
+  $('#addMonthTaskBtn')?.addEventListener('click', () => openPlanModal(null, 'monthly'));
 
-  function openTaskModal(id) {
-    const t = id ? state.tasks.find(x => x.id === id) : null;
-    const title = t ? '编辑任务' : '新建任务';
+  // ============ 任务弹窗（通用，含时长+完成度） ============
+  function openPlanModal(id, planType) {
+    const store = planType === 'weekly' ? state.weekTasks : planType === 'monthly' ? state.monthTasks : state.tasks;
+    const t = id ? store.find(x => x.id === id) : null;
+    const isEdit = !!t;
+    const title = isEdit ? '编辑任务' : (planType==='weekly'?'新建周任务':planType==='monthly'?'新建月任务':'新建任务');
+
+    const defaultDate = planType === 'daily' ? planCurrentDate : '';
+    const defaultWeekStart = planType === 'weekly' ? weekCurrentStart : '';
+    const defaultMonthKey = planType === 'monthly' ? monthCurrentKey : '';
+
     const body = `
       <div class="field">
         <label>任务标题 *</label>
         <input type="text" id="f-title" value="${escapeHtml(t?.title || '')}" placeholder="例如：完成项目方案" />
       </div>
+      ${planType === 'daily' ? `
       <div class="field-row">
         <div class="field">
           <label>日期</label>
-          <input type="date" id="f-date" value="${t?.date || todayKey()}" />
+          <input type="date" id="f-date" value="${t?.date || defaultDate}" />
         </div>
         <div class="field">
           <label>时间</label>
           <input type="time" id="f-time" value="${t?.time || ''}" />
         </div>
-      </div>
-      <div class="field">
-        <label>优先级</label>
-        <div class="tag-options" id="f-priority">
-          <button type="button" data-val="low" class="${t?.priority==='low'?'active':''}">普通</button>
-          <button type="button" data-val="mid" class="${(!t || t?.priority==='mid')?'active':''}">中等</button>
-          <button type="button" data-val="high" class="${t?.priority==='high'?'active':''}">高优</button>
+      </div>` : ''}
+      <div class="field-row">
+        <div class="field">
+          <label>优先级</label>
+          <div class="tag-options" id="f-priority">
+            <button type="button" data-val="low" class="${t?.priority==='low'?'active':''}">普通</button>
+            <button type="button" data-val="mid" class="${(!t || t?.priority==='mid')?'active':''}">中等</button>
+            <button type="button" data-val="high" class="${t?.priority==='high'?'active':''}">高优</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>状态</label>
+          <div class="tag-options" id="f-status">
+            <button type="button" data-val="todo" class="${(!t || t?.status==='todo')?'active':''}">待办</button>
+            <button type="button" data-val="doing" class="${t?.status==='doing'?'active':''}">进行中</button>
+            <button type="button" data-val="done" class="${t?.status==='done'?'active':''}">已完成</button>
+          </div>
         </div>
       </div>
-      <div class="field">
-        <label>状态</label>
-        <div class="tag-options" id="f-status">
-          <button type="button" data-val="todo" class="${(!t || t?.status==='todo')?'active':''}">待办</button>
-          <button type="button" data-val="doing" class="${t?.status==='doing'?'active':''}">进行中</button>
-          <button type="button" data-val="done" class="${t?.status==='done'?'active':''}">已完成</button>
+      <div class="field-row">
+        <div class="field">
+          <label>预计时长（分钟）</label>
+          <input type="number" id="f-duration" min="0" step="5" value="${t?.duration || ''}" placeholder="例如 30" />
+        </div>
+        <div class="field">
+          <label>完成度（0-100%）</label>
+          <input type="range" id="f-progress" min="0" max="100" step="5" value="${t?.progress || 0}" style="width:100%" oninput="document.getElementById('f-progress-val').textContent=this.value+'%'" />
+          <div id="f-progress-val" style="font-size:13px;color:var(--muted);margin-top:4px">${t?.progress || 0}%</div>
         </div>
       </div>
       <div class="field">
@@ -2985,11 +3354,10 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
       </div>
       <div class="form-actions">
         <button class="ghost-btn" id="modalCancel">取消</button>
-        <button class="primary-btn" id="modalOk">${t ? '保存' : '创建'}</button>
+        <button class="primary-btn" id="modalOk">${isEdit ? '保存' : '创建'}</button>
       </div>
     `;
     showModal(title, body, () => {
-      // 切换单选
       $$('#f-priority button').forEach(b => b.addEventListener('click', () => {
         $$('#f-priority button').forEach(x => x.classList.remove('active'));
         b.classList.add('active');
@@ -3004,25 +3372,39 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
         if (!titleVal) { toast('请输入任务标题'); return; }
         const priority = $('#f-priority .active').dataset.val;
         const status = $('#f-status .active').dataset.val;
+        const duration = Number($('#f-duration')?.value) || 0;
+        let progress = Number($('#f-progress')?.value) || 0;
+        if (status === 'done') progress = 100;
+        else if (status === 'todo' && progress === 100) progress = 0;
+
         const obj = {
           id: t?.id || uid(),
           title: titleVal,
-          date: $('#f-date').value || todayKey(),
-          time: $('#f-time').value || '',
           priority, status,
+          duration,
+          progress,
           tag: $('#f-tag').value.trim(),
           note: $('#f-note').value.trim(),
           createdAt: t?.createdAt || new Date().toISOString(),
           doneAt: status === 'done' ? (t?.doneAt || new Date().toISOString()) : null
         };
-        if (t) {
-          const idx = state.tasks.findIndex(x => x.id === t.id);
-          state.tasks[idx] = obj;
-        } else {
-          state.tasks.push(obj);
+        if (planType === 'daily') {
+          obj.date = $('#f-date')?.value || planCurrentDate;
+          obj.time = $('#f-time')?.value || '';
+        } else if (planType === 'weekly') {
+          obj.weekStart = t?.weekStart || defaultWeekStart;
+        } else if (planType === 'monthly') {
+          obj.monthKey = t?.monthKey || defaultMonthKey;
         }
-        saveData(); renderTasks(); renderOverview();
-        toast(t ? '已更新' : '已创建');
+
+        if (isEdit) {
+          const idx = store.findIndex(x => x.id === t.id);
+          store[idx] = obj;
+        } else {
+          store.push(obj);
+        }
+        saveData(); reRenderPlan(planType); renderOverview();
+        toast(isEdit ? '已更新' : '已创建');
         closeModal();
       });
     });
